@@ -1,4 +1,4 @@
-package com.qwert2603.bluetooth_tablo
+package com.qwert2603.btablo
 
 import android.content.SharedPreferences
 import androidx.core.content.edit

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.qwert2603.bluetooth_tablo">
+    package="com.qwert2603.btablo">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:name=".BluetoothTabloApplication"
+        android:name="com.qwert2603.btablo.BluetoothTabloApplication"
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".MainActivity"
+            android:name="com.qwert2603.btablo.MainActivity"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

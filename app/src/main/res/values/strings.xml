@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Bluetooth Tablo</string>
+    <string name="app_name">bTablo</string>
 
     <string name="hint_team1">Команда 1</string>
     <string name="hint_team2">Команда 2</string>
