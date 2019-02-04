@@ -46,6 +46,7 @@ class SearchActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_search)
 
+        // todo: receive and consume BT disabled events
         registerReceiver(btReceiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
 
         if (bluetoothAdapter.isEnabled) {
@@ -84,6 +85,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun searchAnthDevice() {
+        // todo: search timeout: ~12s
         LogUtils.d("BT startDiscovery ${bluetoothAdapter.startDiscovery()}")
         progressBar.setVisible(true)
         enableBT_Button.setVisible(false)
