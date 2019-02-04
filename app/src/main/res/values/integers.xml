@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="points_max_length">4</integer>
+    <integer name="team_max_length">32</integer>
+</resources>

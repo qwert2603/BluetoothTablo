@@ -9,7 +9,7 @@
 
     <string name="about_text_format">
         <![CDATA[
-        приложение <b><font color="#D81B60">Bluetooth Tablo</font></b><br/>
+        приложение <b><font color="#dd4200">Bluetooth Tablo</font></b><br/>
         версия: <b>%1$s (%2$d)</b><br/>
         собрано: <b>%3$s</b> года в <b>%4$s</b><br/>
         ]]>

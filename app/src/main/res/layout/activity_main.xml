@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -31,43 +33,105 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp">
+                android:layout_margin="12dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/team1_EditText"
-                    style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
-                    android:layout_width="match_parent"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:hint="@string/hint_team1"
-                    android:imeOptions="flagNoFullscreen"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    tools:text="Хозяева" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_weight="1">
 
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/team1_EditText"
+                        style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_team1"
+                        android:imeOptions="flagNoFullscreen"
+                        android:inputType="text"
+                        android:maxLength="@integer/team_max_length"
+                        android:maxLines="1"
+                        tools:text="Хозяева" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/team2_EditText"
+                        style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_team2"
+                        android:imeOptions="flagNoFullscreen"
+                        android:inputType="text"
+                        android:maxLength="@integer/team_max_length"
+                        android:maxLines="1"
+                        tools:text="Гости" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp">
+                android:layout_margin="12dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/team2_EditText"
-                    style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
-                    android:layout_width="match_parent"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:hint="@string/hint_team2"
-                    android:imeOptions="flagNoFullscreen"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    tools:text="Гости" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_weight="1">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/points1_EditText"
+                        style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_points1"
+                        android:imeOptions="flagNoFullscreen"
+                        android:inputType="number"
+                        android:maxLength="@integer/points_max_length"
+                        tools:text="26" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/points2_EditText"
+                        style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_points2"
+                        android:imeOptions="flagNoFullscreen"
+                        android:inputType="number"
+                        android:maxLength="@integer/points_max_length"
+                        tools:text="19" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
 
             <Button
                 android:id="@+id/send_Button"
