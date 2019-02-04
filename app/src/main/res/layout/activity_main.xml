@@ -57,6 +57,7 @@
                         android:inputType="text"
                         android:maxLength="@integer/team_max_length"
                         android:maxLines="1"
+                        android:selectAllOnFocus="true"
                         tools:text="Хозяева" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -78,6 +79,7 @@
                         android:inputType="text"
                         android:maxLength="@integer/team_max_length"
                         android:maxLines="1"
+                        android:selectAllOnFocus="true"
                         tools:text="Гости" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -107,6 +109,7 @@
                         android:imeOptions="flagNoFullscreen"
                         android:inputType="number"
                         android:maxLength="@integer/points_max_length"
+                        android:selectAllOnFocus="true"
                         tools:text="26" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -127,6 +130,7 @@
                         android:imeOptions="flagNoFullscreen"
                         android:inputType="number"
                         android:maxLength="@integer/points_max_length"
+                        android:selectAllOnFocus="true"
                         tools:text="19" />
 
                 </com.google.android.material.textfield.TextInputLayout>

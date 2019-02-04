@@ -4,6 +4,7 @@
     package="com.qwert2603.bluetooth_tablo">
 
     <application
+        android:name=".BluetoothTabloApplication"
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
