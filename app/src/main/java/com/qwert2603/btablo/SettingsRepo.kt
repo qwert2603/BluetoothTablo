@@ -6,8 +6,8 @@ class SettingsRepo {
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(BluetoothTabloApplication.appContext)
 
-    var team1 by PrefsString(prefs, "team1")
-    var team2 by PrefsString(prefs, "team2")
+    var team1 by PrefsString(prefs, "team1", "Хозяева")
+    var team2 by PrefsString(prefs, "team2", "Гости")
     var points1 by PrefsInt(prefs, "points1")
     var points2 by PrefsInt(prefs, "points2")
 
