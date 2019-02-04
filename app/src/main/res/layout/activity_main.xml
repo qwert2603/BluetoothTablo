@@ -148,6 +148,31 @@
                 android:textSize="16sp"
                 app:strokeColor="@color/colorAccent" />
 
+            <LinearLayout
+                android:id="@+id/sendingState_LinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ProgressBar
+                    android:id="@+id/sending_ProgressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
+
+                <TextView
+                    android:id="@+id/sendingState_TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    tools:text="@string/sending_state_sending" />
+
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/about_TextView"
                 android:layout_width="match_parent"

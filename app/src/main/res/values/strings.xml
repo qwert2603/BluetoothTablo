@@ -14,4 +14,8 @@
         собрано: <b>%3$s</b> года в <b>%4$s</b><br/>
         ]]>
     </string>
+
+    <string name="sending_state_sending">отправка..</string>
+    <string name="sending_state_error">ошибка!</string>
+    <string name="sending_state_success">отправлено</string>
 </resources>

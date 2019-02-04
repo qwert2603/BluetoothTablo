@@ -5,4 +5,8 @@
     <color name="colorAccent">#dd4200</color>
 
     <color name="launcherColor">@color/colorAccent</color>
+
+    <color name="sending_state_sending">#000000</color>
+    <color name="sending_state_error">#dd4200</color>
+    <color name="sending_state_success">#429900</color>
 </resources>
