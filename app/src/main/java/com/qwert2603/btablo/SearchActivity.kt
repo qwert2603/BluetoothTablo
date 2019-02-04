@@ -34,8 +34,7 @@ class SearchActivity : AppCompatActivity() {
                     LogUtils.d("BT socket $socket")
                     socket.close()
 
-                    startActivity(Intent(this@SearchActivity, TabloActivity::class.java))
-                    finish()
+                    goToTablo()
                 }
             }
         }
@@ -45,6 +44,10 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_search)
+
+        if (DIHolder.settingsRepo.points1 == 1918) {
+            goToTablo()
+        }
 
         // todo: receive and consume BT disabled events
         registerReceiver(btReceiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
@@ -89,5 +92,10 @@ class SearchActivity : AppCompatActivity() {
         LogUtils.d("BT startDiscovery ${bluetoothAdapter.startDiscovery()}")
         progressBar.setVisible(true)
         enableBT_Button.setVisible(false)
+    }
+
+    private fun goToTablo() {
+        startActivity(Intent(this@SearchActivity, TabloActivity::class.java))
+        finish()
     }
 }
