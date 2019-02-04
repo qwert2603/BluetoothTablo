@@ -53,8 +53,13 @@ class MainActivity : AppCompatActivity() {
             viewModel.send(settingsRepo.getMessage())
         }
 
+        sendingState_LinearLayout.setVisible(false)
+
         viewModel.sendingState.observe(this, Observer { state: SendingState ->
             LogUtils.d("viewModel.sendingState.observe $state")
+
+            sendingState_LinearLayout.setVisible(true)
+
             sending_ProgressBar.setVisible(state == SendingState.SENDING)
             sendingState_TextView.text = getString(
                 when (state) {
