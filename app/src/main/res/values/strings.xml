@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Bluetooth Tablo</string>
+
+    <string name="hint_team1">Команда 1</string>
+    <string name="hint_team2">Команда 2</string>
+    <string name="hint_points1">Счёт 1</string>
+    <string name="hint_points2">Счёт 2</string>
+    <string name="button_send">Отправить</string>
+
+    <string name="about_text_format">
+        <![CDATA[
+        приложение <b><font color="#D81B60">Bluetooth Tablo</font></b><br/>
+        версия: <b>%1$s (%2$d)</b><br/>
+        собрано: <b>%3$s</b> года в <b>%4$s</b><br/>
+        ]]>
+    </string>
+</resources>
