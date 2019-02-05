@@ -4,7 +4,7 @@
     <color name="colorPrimaryDark">#227900</color>
     <color name="colorAccent">#dd4200</color>
 
-    <color name="launcherColor">@color/colorAccent</color>
+    <color name="launcherAccentColor">#42A0D0</color>
 
     <color name="sending_state_sending">#000000</color>
     <color name="sending_state_error">#dd4200</color>
