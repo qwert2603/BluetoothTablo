@@ -1,10 +1,13 @@
-package com.qwert2603.btablo
+package com.qwert2603.btablo.model
 
 import android.preference.PreferenceManager
+import com.qwert2603.btablo.di.DIHolder
+import com.qwert2603.btablo.utils.PrefsInt
+import com.qwert2603.btablo.utils.PrefsString
 
 class SettingsRepo {
 
-    private val prefs = PreferenceManager.getDefaultSharedPreferences(BluetoothTabloApplication.appContext)
+    private val prefs = PreferenceManager.getDefaultSharedPreferences(DIHolder.appContext)
 
     var team1 by PrefsString(prefs, "team1", "Хозяева")
     var team2 by PrefsString(prefs, "team2", "Гости")

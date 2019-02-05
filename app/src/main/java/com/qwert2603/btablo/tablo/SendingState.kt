@@ -1,4 +1,4 @@
-package com.qwert2603.btablo
+package com.qwert2603.btablo.tablo
 
 enum class SendingState {
     SENDING,

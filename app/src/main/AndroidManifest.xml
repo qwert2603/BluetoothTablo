@@ -17,18 +17,15 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name=".SearchActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden">
+            android:name=".tablo.TabloActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:windowSoftInputMode="adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".TabloActivity"
-            android:windowSoftInputMode="adjustResize" />
 
     </application>
 
