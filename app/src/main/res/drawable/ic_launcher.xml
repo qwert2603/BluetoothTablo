@@ -13,7 +13,7 @@
         android:pivotX="12"
         android:pivotY="12"
         android:scaleY="0.85"
-        android:translateX="5">
+        android:translateX="4.5">
 
         <path
             android:pathData="M0 6L12 18L6 24L6 0L12 6L0 18"
@@ -32,5 +32,10 @@
             android:trimPathEnd="0.42" />
 
     </group>
+
+    <!--<path-->
+    <!--android:pathData="M12 0v24M0 12h24"-->
+    <!--android:strokeWidth="0.1"-->
+    <!--android:strokeColor="#000000" />-->
 
 </vector>
