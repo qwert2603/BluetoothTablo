@@ -1,7 +1,7 @@
 package com.qwert2603.btablo.tablo
 
-enum class SendingState {
-    SENDING,
-    ERROR,
-    SUCCESS
+sealed class SendingState {
+    object Sending : SendingState()
+    data class Error(val t: Throwable) : SendingState()
+    object Success : SendingState()
 }

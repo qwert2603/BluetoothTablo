@@ -23,7 +23,7 @@ class TabloPresenter : BasePresenter<TabloView, TabloViewState>(DIHolder.uiSched
                     .toSingleDefault<TabloPartialChange>(TabloPartialChange.SendSuccess)
                     .onErrorReturn {
                         LogUtils.e(msg = "TabloPresenter sendData", t = it)
-                        TabloPartialChange.SendError
+                        TabloPartialChange.SendError(it)
                     }
                     .toObservable()
                     .startWith(TabloPartialChange.SendStarted)
@@ -33,9 +33,15 @@ class TabloPresenter : BasePresenter<TabloView, TabloViewState>(DIHolder.uiSched
     override fun stateReducer(vs: TabloViewState, change: PartialChange): TabloViewState {
         if (change !is TabloPartialChange) null!!
         return when (change) {
-            TabloPartialChange.SendStarted -> vs.copy(sendingState = SendingState.SENDING, changedAfterSendingStarted = false)
-            TabloPartialChange.SendError -> vs.copy(sendingState = SendingState.ERROR)
-            TabloPartialChange.SendSuccess -> vs.copy(sendingState = SendingState.SUCCESS, hasUnsentChanges = vs.changedAfterSendingStarted)
+            TabloPartialChange.SendStarted -> vs.copy(
+                sendingState = SendingState.Sending,
+                changedAfterSendingStarted = false
+            )
+            is TabloPartialChange.SendError -> vs.copy(sendingState = SendingState.Error(change.t))
+            TabloPartialChange.SendSuccess -> vs.copy(
+                sendingState = SendingState.Success,
+                hasUnsentChanges = vs.changedAfterSendingStarted
+            )
             TabloPartialChange.AnyFieldChanged -> vs.copy(hasUnsentChanges = true, changedAfterSendingStarted = true)
         }
     }

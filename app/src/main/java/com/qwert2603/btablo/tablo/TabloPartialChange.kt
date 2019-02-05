@@ -4,7 +4,7 @@ import com.qwert2603.andrlib.base.mvi.PartialChange
 
 sealed class TabloPartialChange : PartialChange {
     object SendStarted : TabloPartialChange()
-    object SendError : TabloPartialChange()
+    data class SendError(val t: Throwable) : TabloPartialChange()
     object SendSuccess : TabloPartialChange()
     object AnyFieldChanged : TabloPartialChange()
 }

@@ -9,14 +9,18 @@
 
     <string name="about_text_format">
         <![CDATA[
-        приложение <b><font color="#dd4200">Bluetooth Tablo</font></b><br/>
-        версия: <b>%1$s (%2$d)</b><br/>
-        собрано: <b>%3$s</b> года в <b>%4$s</b><br/>
+        Приложение <b><font color="#429900">Bluetooth Tablo</font></b><br/>
+        Версия: <b>%1$s (%2$d)</b><br/>
+        Собрано: <b>%3$s</b> года в <b>%4$s</b><br/>
         ]]>
     </string>
 
     <string name="sending_state_sending">отправка..</string>
-    <string name="sending_state_error">ошибка!</string>
-    <string name="sending_state_success">отправлено</string>
-    <string name="has_unsent_changes">есть неотправленные данные</string>
+    <string name="sending_state_success">Отправлено</string>
+
+    <string name="sending_state_error_no_geo_permission">Нет разрешения на геолокацию!</string>
+    <string name="sending_state_error_bluetooth_denied">Bluetooth отключен!</string>
+    <string name="sending_state_error">Ошибка!</string>
+
+    <string name="has_unsent_changes">Есть неотправленные данные</string>
 </resources>

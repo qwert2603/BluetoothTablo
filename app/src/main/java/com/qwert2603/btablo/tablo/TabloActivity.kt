@@ -1,56 +1,25 @@
 package com.qwert2603.btablo.tablo
 
-import android.app.Activity
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.text.Html
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
-import com.qwert2603.andrlib.base.mvi.BaseActivity
 import com.qwert2603.andrlib.base.mvi.ViewAction
 import com.qwert2603.andrlib.util.setVisible
 import com.qwert2603.btablo.BuildConfig
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.di.DIHolder
-import com.qwert2603.btablo.utils.LogUtils
+import com.qwert2603.btablo.model.BluetoothDeniedException
+import com.qwert2603.btablo.utils.BluetoothActivity
 import com.qwert2603.btablo.utils.doOnTextChange
 import com.qwert2603.btablo.utils.toIntOrZero
+import com.qwert2603.permesso.exception.PermissionDeniedException
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_tablo.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TabloActivity : BaseActivity<TabloViewState, TabloView, TabloPresenter>(), TabloView {
-
-    companion object {
-        private const val REQUEST_ENABLE_BT = 1
-    }
-
-    private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-
-    private val btReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == BluetoothDevice.ACTION_FOUND) {
-                val device: BluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                val deviceName = device.name
-                val deviceMacAddress = device.address
-                LogUtils.d("BT device found $deviceName $deviceMacAddress")
-                if (deviceMacAddress == "3C:CB:7C:39:DA:95") {
-                    bluetoothAdapter.cancelDiscovery()
-
-                    val socket = device.createRfcommSocketToServiceRecord(UUID.randomUUID())
-                    LogUtils.d("BT socket $socket")
-
-//                    DIHolder.tabloRepo.onSocket(socket)
-                }
-            }
-        }
-    }
+class TabloActivity : BluetoothActivity<TabloViewState, TabloView, TabloPresenter>(), TabloView {
 
     override fun createPresenter() = TabloPresenter()
 
@@ -89,42 +58,6 @@ class TabloActivity : BaseActivity<TabloViewState, TabloView, TabloPresenter>(),
                 SimpleDateFormat("H:mm", Locale.getDefault()).format(Date(BuildConfig.BIULD_TIME))
             )
         )
-
-        // todo: receive and consume BT disabled events
-        registerReceiver(btReceiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
-
-        val refreshSocketAction = {
-            if (bluetoothAdapter.isEnabled) {
-                LogUtils.d("BT startDiscovery ${bluetoothAdapter.startDiscovery()}")
-            } else {
-                startActivityForResult(
-                    Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),
-                    REQUEST_ENABLE_BT
-                )
-            }
-        }
-//        DIHolder.tabloRepo.refreshSocketAction = refreshSocketAction
-        refreshSocketAction()
-    }
-
-    override fun onDestroy() {
-//        DIHolder.tabloRepo.refreshSocketAction = null
-        bluetoothAdapter.cancelDiscovery()
-        unregisterReceiver(btReceiver)
-        super.onDestroy()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_ENABLE_BT) {
-            if (resultCode == Activity.RESULT_OK) {
-                LogUtils.d("BT enabled")
-                LogUtils.d("BT startDiscovery ${bluetoothAdapter.startDiscovery()}")
-            } else {
-                LogUtils.d("BT denied")
-//                DIHolder.tabloRepo.onSocket(null)
-            }
-        }
     }
 
     override fun sendClicks(): Observable<Any> = RxView.clicks(send_Button)
@@ -145,21 +78,25 @@ class TabloActivity : BaseActivity<TabloViewState, TabloView, TabloPresenter>(),
         sendingState_LinearLayout.setVisible(vs.sendingState != null)
 
         if (vs.sendingState != null) {
-            sending_ProgressBar.setVisible(vs.sendingState == SendingState.SENDING)
+            sending_ProgressBar.setVisible(vs.sendingState == SendingState.Sending)
             sendingState_TextView.text = getString(
                 when (vs.sendingState) {
-                    SendingState.SENDING -> R.string.sending_state_sending
-                    SendingState.ERROR -> R.string.sending_state_error
-                    SendingState.SUCCESS -> R.string.sending_state_success
+                    SendingState.Sending -> R.string.sending_state_sending
+                    is SendingState.Error -> when (vs.sendingState.t) {
+                        is PermissionDeniedException -> R.string.sending_state_error_no_geo_permission
+                        is BluetoothDeniedException -> R.string.sending_state_error_bluetooth_denied
+                        else -> R.string.sending_state_error
+                    }
+                    SendingState.Success -> R.string.sending_state_success
                 }
             )
             @Suppress("DEPRECATION")
             sendingState_TextView.setTextColor(
                 resources.getColor(
                     when (vs.sendingState) {
-                        SendingState.SENDING -> R.color.sending_state_sending
-                        SendingState.ERROR -> R.color.sending_state_error
-                        SendingState.SUCCESS -> R.color.sending_state_success
+                        SendingState.Sending -> R.color.sending_state_sending
+                        is SendingState.Error -> R.color.sending_state_error
+                        SendingState.Success -> R.color.sending_state_success
                     }
                 )
             )
@@ -171,5 +108,4 @@ class TabloActivity : BaseActivity<TabloViewState, TabloView, TabloPresenter>(),
     override fun executeAction(va: ViewAction) {
         // nth.
     }
-
 }
