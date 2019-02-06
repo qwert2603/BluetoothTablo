@@ -20,10 +20,12 @@ import io.reactivex.Completable
 import io.reactivex.CompletableEmitter
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.*
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
@@ -85,6 +87,8 @@ class TabloRepo {
     private val socketLock = Any()
     private val currentSocket = BehaviorSubject.createDefault<Wrapper<BluetoothSocket>>(Wrapper(null))
 
+    private val sendScheduler = Schedulers.from(Executors.newSingleThreadExecutor())
+
     init {
         DIHolder.appContext.registerReceiver(btStateReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
         DIHolder.appContext.registerReceiver(btFoundReceiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
@@ -94,45 +98,45 @@ class TabloRepo {
         .flatMapCompletable { socket ->
             Completable
                 .fromAction {
-                    synchronized(socketLock) {
-                        try {
-                            LogUtils.d("TabloRepo sendData socket $socket")
+                    try {
+                        checkNotUi()
+                        LogUtils.d("TabloRepo sendData socket $socket")
 
-                            val expectedChecksum = message.hashCode().toString()
+                        val expectedChecksum = message.hashCode().toString()
 
-                            LogUtils.d("TabloRepo sendData write $message")
-                            socket.outputStream.write("$message\n".toByteArray())
-                            socket.outputStream.flush()
+                        LogUtils.d("TabloRepo sendData write $message")
+                        socket.outputStream.write("$message\n".toByteArray())
+                        socket.outputStream.flush()
 
-                            val bufferedReader = BufferedReader(InputStreamReader(socket.inputStream))
-                            val actualChecksum = bufferedReader.readLine()
-                            LogUtils.d("TabloRepo sendData readLine $actualChecksum")
+                        val bufferedReader = BufferedReader(InputStreamReader(socket.inputStream))
+                        val actualChecksum = bufferedReader.readLine()
+                        LogUtils.d("TabloRepo sendData readLine $actualChecksum")
 
-                            if (actualChecksum != expectedChecksum) {
-                                throw WrongChecksumException()
-                            }
-                        } catch (t: Throwable) {
-                            if (t is WrongChecksumException) {
-                                throw t
-                            } else {
-                                noThrow { socket.close() }
-                                currentSocket.onNext(Wrapper(null))
-                                throw BluetoothConnectionException(t)
-                            }
+                        if (actualChecksum != expectedChecksum) {
+                            throw WrongChecksumException()
+                        }
+                    } catch (t: Throwable) {
+                        if (t is WrongChecksumException) {
+                            throw t
+                        } else {
+                            noThrow { socket.close() }
+                            currentSocket.onNext(Wrapper(null))
+                            throw BluetoothConnectionException(t)
                         }
                     }
                 }
+                .subscribeOn(sendScheduler)
                 .timeout(
                     10,
                     TimeUnit.SECONDS,
                     Completable.error {
                         LogUtils.d("TabloRepo sendData timeout")
+                        checkNotUi()
                         noThrow { socket.close() }
                         currentSocket.onNext(Wrapper(null))
                         BluetoothConnectionException(TimeoutException())
                     }
                 )
-                .subscribeOn(DIHolder.modelSchedulersProvider.io)
         }
         .subscribeOn(DIHolder.modelSchedulersProvider.io)
         .also { LogUtils.d("TabloRepo sendData $message") }
@@ -153,6 +157,7 @@ class TabloRepo {
             synchronized(socketLock) {
                 if (!it.isConnected) {
                     try {
+                        checkNotUi()
                         it.connect()
                         LogUtils.d("TabloRepo getSocket connect success")
                     } catch (t: Throwable) {
@@ -165,7 +170,6 @@ class TabloRepo {
             }
             Single.just(it)
         }
-        .subscribeOn(DIHolder.modelSchedulersProvider.io)
 
     private fun createSocket(): Single<BluetoothSocket> = enableBt()
         .andThen(
@@ -193,6 +197,7 @@ class TabloRepo {
             Single.error {
                 LogUtils.d("TabloRepo createSocket timeout")
                 LogUtils.d("TabloRepo createSocket bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
+                currentSocket.onNext(Wrapper(null))
                 synchronized(socketEmittersLock) {
                     socketEmitters.forEach { if (!it.isDisposed) it.onError(TabloNotFoundException()) }
                     socketEmitters.clear()
@@ -227,10 +232,8 @@ class TabloRepo {
                             )
                         }
                     }
-                    .subscribeOn(DIHolder.modelSchedulersProvider.io)
             }
         }
-        .subscribeOn(DIHolder.modelSchedulersProvider.io)
 
     fun onActivityCreate(activity: AppCompatActivity) {
         @Suppress("UNUSED")
@@ -271,6 +274,13 @@ class TabloRepo {
         try {
             action()
         } catch (t: Throwable) {
+        }
+    }
+
+    private fun checkNotUi() {
+        if (DIHolder.uiSchedulerProvider.isOnUi()) {
+            LogUtils.e("UI thread !!!")
+            LogUtils.printCurrentStack()
         }
     }
 }

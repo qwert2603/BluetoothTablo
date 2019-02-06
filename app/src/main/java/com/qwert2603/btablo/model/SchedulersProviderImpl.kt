@@ -10,6 +10,6 @@ import io.reactivex.schedulers.Schedulers
 class SchedulersProviderImpl : ModelSchedulersProvider, UiSchedulerProvider {
     override val ui: Scheduler = AndroidSchedulers.mainThread()
     override fun isOnUi() = Looper.myLooper() == Looper.getMainLooper()
-    override val io: Scheduler = Schedulers.io()
+    override val io: Scheduler = Schedulers.newThread()
     override val computation: Scheduler = Schedulers.computation()
 }
