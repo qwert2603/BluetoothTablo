@@ -62,7 +62,9 @@ class TabloRepo {
 
                 try {
                     val socket = device.createInsecureRfcommSocketToServiceRecord(BT_UUID)
+                    synchronized(socketLock) { connectingSocket = socket }
                     socket.connect()
+                    synchronized(socketLock) { connectingSocket = null }
                     LogUtils.d("BT socket $socket")
                     currentSocket.onNext(socket.wrap())
                     synchronized(socketEmittersLock) {
@@ -71,6 +73,11 @@ class TabloRepo {
                     }
                 } catch (t: Throwable) {
                     currentSocket.onNext(Wrapper(null))
+                    synchronized(socketLock) {
+                        LogUtils.d("TabloRepo connectingSocket?.close() $connectingSocket")
+                        connectingSocket?.close()
+                        connectingSocket = null
+                    }
                     synchronized(socketEmittersLock) {
                         socketEmitters.forEach { if (!it.isDisposed) it.onError(t) }
                         socketEmitters.clear()
@@ -89,6 +96,9 @@ class TabloRepo {
 
     private val socketEmittersLock = Any()
     private val socketEmitters = mutableSetOf<SingleEmitter<BluetoothSocket>>()
+
+    @Volatile
+    private var connectingSocket: BluetoothSocket? = null
 
     private val socketLock = Any()
     private val currentSocket = BehaviorSubject.createDefault<Wrapper<BluetoothSocket>>(Wrapper(null))
@@ -158,10 +168,15 @@ class TabloRepo {
             }
         })
         .timeout(
-            15,
+            25,
             TimeUnit.SECONDS,
             Single.error {
                 LogUtils.d("TabloRepo createSocket timeout")
+                synchronized(socketLock) {
+                    LogUtils.d("TabloRepo connectingSocket?.close() $connectingSocket")
+                    connectingSocket?.close()
+                    connectingSocket = null
+                }
                 LogUtils.d("TabloRepo bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
                 synchronized(socketEmittersLock) {
                     socketEmitters.forEach { if (!it.isDisposed) it.onError(TabloNotFoundException()) }
