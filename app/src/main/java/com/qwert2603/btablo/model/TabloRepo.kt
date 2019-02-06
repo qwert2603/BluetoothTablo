@@ -44,7 +44,7 @@ class TabloRepo {
 
             if (intent.hasExtra(BluetoothAdapter.EXTRA_STATE)) {
                 val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0)
-                LogUtils.d("BT state = $state")
+                LogUtils.d("BT btStateReceiver state = $state")
                 isBtEnabled.onNext(state == BluetoothAdapter.STATE_ON)
             }
         }
@@ -59,14 +59,14 @@ class TabloRepo {
             val deviceMacAddress = device.address
             LogUtils.d("BT device found $deviceName $deviceMacAddress")
             if (deviceMacAddress in listOf(ALCATEL_MAC, REDMI_MAC)) {
-                LogUtils.d("TabloRepo bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
+                LogUtils.d("TabloRepo btFoundReceiver bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
 
                 try {
                     val socket = device.createInsecureRfcommSocketToServiceRecord(BT_UUID)
                     synchronized(socketLock) { connectingSocket = socket }
                     socket.connect()
                     synchronized(socketLock) { connectingSocket = null }
-                    LogUtils.d("BT socket $socket")
+                    LogUtils.d("BT btFoundReceiver socket $socket")
                     currentSocket.onNext(socket.wrap())
                     synchronized(socketEmittersLock) {
                         socketEmitters.forEach { if (!it.isDisposed) it.onSuccess(socket) }
@@ -75,7 +75,7 @@ class TabloRepo {
                 } catch (t: Throwable) {
                     currentSocket.onNext(Wrapper(null))
                     synchronized(socketLock) {
-                        LogUtils.d("TabloRepo connectingSocket?.close() $connectingSocket")
+                        LogUtils.d("TabloRepo btFoundReceiver connectingSocket?.close() $connectingSocket")
                         connectingSocket?.close()
                         connectingSocket = null
                     }
@@ -151,6 +151,7 @@ class TabloRepo {
                 )
                 .subscribeOn(DIHolder.modelSchedulersProvider.io)
         }
+        .subscribeOn(DIHolder.modelSchedulersProvider.io)
         .also { LogUtils.d("TabloRepo sendData $message") }
 
     private fun getSocket(): Single<BluetoothSocket> = currentSocket
@@ -184,11 +185,11 @@ class TabloRepo {
             Single.error {
                 LogUtils.d("TabloRepo createSocket timeout")
                 synchronized(socketLock) {
-                    LogUtils.d("TabloRepo connectingSocket?.close() $connectingSocket")
+                    LogUtils.d("TabloRepo createSocket connectingSocket?.close() $connectingSocket")
                     connectingSocket?.close()
                     connectingSocket = null
                 }
-                LogUtils.d("TabloRepo bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
+                LogUtils.d("TabloRepo createSocket bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
                 synchronized(socketEmittersLock) {
                     socketEmitters.forEach { if (!it.isDisposed) it.onError(TabloNotFoundException()) }
                     socketEmitters.clear()
