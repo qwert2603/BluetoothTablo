@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.model.TabloRepo
@@ -22,6 +23,11 @@ class ServerActivity : AppCompatActivity() {
         clear_Button.setOnClickListener { textView.text = "" }
 
         val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        if (!bluetoothAdapter.isEnabled) {
+            Toast.makeText(this, "enable BT", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE))
 
@@ -39,7 +45,7 @@ class ServerActivity : AppCompatActivity() {
                 val socket = serverSocket.accept()
                 serverSocket.close()
 
-                addText("socket = ${socket.isConnected} $socket")
+                addText("client: ${socket.remoteDevice.name}")
 
                 val bufferedReader = BufferedReader(InputStreamReader(socket.inputStream))
 
