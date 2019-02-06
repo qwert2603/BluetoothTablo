@@ -9,8 +9,10 @@ import com.qwert2603.andrlib.util.setVisible
 import com.qwert2603.btablo.BuildConfig
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.di.DIHolder
+import com.qwert2603.btablo.model.BluetoothConnectionException
 import com.qwert2603.btablo.model.BluetoothDeniedException
 import com.qwert2603.btablo.model.TabloNotFoundException
+import com.qwert2603.btablo.model.WrongChecksumException
 import com.qwert2603.btablo.utils.BluetoothActivity
 import com.qwert2603.btablo.utils.doOnTextChange
 import com.qwert2603.btablo.utils.toIntOrZero
@@ -87,6 +89,8 @@ class TabloActivity : BluetoothActivity<TabloViewState, TabloView, TabloPresente
                         is PermissionDeniedException -> R.string.sending_state_error_no_geo_permission
                         is BluetoothDeniedException -> R.string.sending_state_error_bluetooth_denied
                         is TabloNotFoundException -> R.string.sending_state_error_tablo_not_found
+                        is BluetoothConnectionException -> R.string.sending_state_error_connection_exception
+                        is WrongChecksumException -> R.string.sending_state_error_wrong_checksum
                         else -> R.string.sending_state_error
                     }
                     SendingState.Success -> R.string.sending_state_success

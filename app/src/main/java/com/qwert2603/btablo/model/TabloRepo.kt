@@ -31,7 +31,8 @@ class TabloRepo {
     companion object {
         private const val REQUEST_ENABLE_BT = 1
         private const val ALCATEL_MAC = "3C:CB:7C:39:DA:95"
-        private val BT_UUID = UUID.fromString("a3768bc3-601a-4f7b-ab72-798c5c2e44a8")
+        private const val REDMI_MAC = "E0:62:67:66:E7:D6"
+        val BT_UUID = UUID.fromString("a3768bc3-601a-4f7b-ab72-798c5c2e44a8")
     }
 
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -56,11 +57,11 @@ class TabloRepo {
             val deviceName = device.name
             val deviceMacAddress = device.address
             LogUtils.d("BT device found $deviceName $deviceMacAddress")
-            if (deviceMacAddress == ALCATEL_MAC) {
+            if (deviceMacAddress in listOf(ALCATEL_MAC, REDMI_MAC)) {
                 LogUtils.d("TabloRepo bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
 
                 try {
-                    val socket = device.createRfcommSocketToServiceRecord(BT_UUID)
+                    val socket = device.createInsecureRfcommSocketToServiceRecord(BT_UUID)
                     socket.connect()
                     LogUtils.d("BT socket $socket")
                     currentSocket.onNext(socket.wrap())
@@ -69,6 +70,7 @@ class TabloRepo {
                         socketEmitters.clear()
                     }
                 } catch (t: Throwable) {
+                    currentSocket.onNext(Wrapper(null))
                     synchronized(socketEmittersLock) {
                         socketEmitters.forEach { if (!it.isDisposed) it.onError(t) }
                         socketEmitters.clear()
@@ -98,23 +100,36 @@ class TabloRepo {
 
     fun sendData(message: String): Completable = getSocket()
         .flatMapCompletable { socket ->
-            Completable.fromAction {
-                synchronized(socketLock) {
-                    try {
-                        LogUtils.d("TabloRepo sendData write $message")
-                        socket.outputStream.write("smth".toByteArray())
+            Completable
+                .fromAction {
+                    synchronized(socketLock) {
+                        try {
+                            val expectedChecksum = message.hashCode().toString()
 
-                        val line = BufferedReader(InputStreamReader(socket.inputStream)).readLine()
-                        LogUtils.d("TabloRepo sendData readLine $line")
-                    } catch (t: Throwable) {
-                        socket.close()
-                        currentSocket.onNext(Wrapper(null))
-                        throw t
+                            LogUtils.d("TabloRepo sendData write $message")
+                            socket.outputStream.write("$message\n".toByteArray())
+                            socket.outputStream.flush()
+
+                            val bufferedReader = BufferedReader(InputStreamReader(socket.inputStream))
+                            val actualChecksum = bufferedReader.readLine()
+                            LogUtils.d("TabloRepo sendData readLine $actualChecksum")
+
+                            if (actualChecksum != expectedChecksum) {
+                                throw WrongChecksumException()
+                            }
+                        } catch (t: Throwable) {
+                            if (t is WrongChecksumException) {
+                                throw t
+                            } else {
+                                socket.close()
+                                currentSocket.onNext(Wrapper(null))
+                                throw BluetoothConnectionException(t)
+                            }
+                        }
                     }
                 }
-            }
+                .subscribeOn(DIHolder.modelSchedulersProvider.io)
         }
-        .subscribeOn(DIHolder.modelSchedulersProvider.io)
         .also { LogUtils.d("TabloRepo sendData $message") }
 
     private fun getSocket(): Single<BluetoothSocket> = currentSocket
