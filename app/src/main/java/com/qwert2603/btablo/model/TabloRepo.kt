@@ -25,6 +25,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 class TabloRepo {
 
@@ -79,7 +80,7 @@ class TabloRepo {
                         connectingSocket = null
                     }
                     synchronized(socketEmittersLock) {
-                        socketEmitters.forEach { if (!it.isDisposed) it.onError(t) }
+                        socketEmitters.forEach { if (!it.isDisposed) it.onError(BluetoothConnectionException(t)) }
                         socketEmitters.clear()
                     }
                 }
@@ -138,6 +139,16 @@ class TabloRepo {
                         }
                     }
                 }
+                .timeout(
+                    25,
+                    TimeUnit.SECONDS,
+                    Completable.error {
+                        LogUtils.d("TabloRepo sendData timeout")
+                        socket.close()
+                        currentSocket.onNext(Wrapper(null))
+                        BluetoothConnectionException(TimeoutException())
+                    }
+                )
                 .subscribeOn(DIHolder.modelSchedulersProvider.io)
         }
         .also { LogUtils.d("TabloRepo sendData $message") }
