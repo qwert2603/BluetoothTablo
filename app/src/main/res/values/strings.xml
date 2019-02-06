@@ -27,6 +27,7 @@
 
     <string name="has_unsent_changes">Есть неотправленные данные</string>
 
+    <string name="button_clear">Очистить</string>
     <string name="button_server">Сервер</string>
     <string name="button_client">Клиент</string>
 </resources>

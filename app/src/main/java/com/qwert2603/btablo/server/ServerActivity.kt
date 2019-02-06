@@ -19,6 +19,8 @@ class ServerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_server)
 
+        clear_Button.setOnClickListener { textView.text = "" }
+
         val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
         startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE))

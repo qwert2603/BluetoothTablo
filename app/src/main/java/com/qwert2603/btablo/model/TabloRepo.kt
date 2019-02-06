@@ -166,19 +166,23 @@ class TabloRepo {
         }
 
     private fun createSocket(): Single<BluetoothSocket> = enableBt()
-        .andThen(Single.create { emitter: SingleEmitter<BluetoothSocket> ->
-            synchronized(socketEmittersLock) {
-                socketEmitters.add(emitter)
-            }
-            val startDiscovery = bluetoothAdapter.startDiscovery()
-            LogUtils.d("TabloRepo bluetoothAdapter.startDiscovery() $startDiscovery")
-            if (!startDiscovery) {
+        .andThen(Single
+            .create { emitter: SingleEmitter<BluetoothSocket> ->
                 synchronized(socketEmittersLock) {
-                    socketEmitters.forEach { if (!it.isDisposed) it.onError(BluetoothDeniedException()) }
-                    socketEmitters.clear()
+                    socketEmitters.add(emitter)
+                }
+                if (!bluetoothAdapter.isDiscovering) {
+                    val startDiscovery = bluetoothAdapter.startDiscovery()
+                    LogUtils.d("TabloRepo bluetoothAdapter.startDiscovery() $startDiscovery")
+                    if (!startDiscovery) {
+                        synchronized(socketEmittersLock) {
+                            socketEmitters.forEach { if (!it.isDisposed) it.onError(BluetoothDeniedException()) }
+                            socketEmitters.clear()
+                        }
+                    }
                 }
             }
-        })
+            .subscribeOn(DIHolder.modelSchedulersProvider.io))
         .timeout(
             25,
             TimeUnit.SECONDS,
@@ -224,6 +228,7 @@ class TabloRepo {
                             )
                         }
                     }
+                    .subscribeOn(DIHolder.modelSchedulersProvider.io)
             }
         }
         .subscribeOn(DIHolder.modelSchedulersProvider.io)
