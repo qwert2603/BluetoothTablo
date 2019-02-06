@@ -16,5 +16,5 @@ class SettingsRepo {
 
     fun getMessage() = listOf(team1, team2, points1, points2)
         .map { it.toString() }
-        .reduce { acc, s -> "$acc\n$s" }
+        .reduce { acc, s -> "$acc $s" }
 }

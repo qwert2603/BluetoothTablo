@@ -12,21 +12,26 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import com.qwert2603.andrlib.util.LogUtils
 import com.qwert2603.btablo.di.DIHolder
-import com.qwert2603.btablo.utils.LogUtils
 import com.qwert2603.btablo.utils.Wrapper
 import com.qwert2603.btablo.utils.wrap
 import io.reactivex.Completable
 import io.reactivex.CompletableEmitter
 import io.reactivex.Single
+import io.reactivex.SingleEmitter
 import io.reactivex.subjects.BehaviorSubject
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class TabloRepo {
 
     companion object {
         private const val REQUEST_ENABLE_BT = 1
         private const val ALCATEL_MAC = "3C:CB:7C:39:DA:95"
+        private val BT_UUID = UUID.fromString("a3768bc3-601a-4f7b-ab72-798c5c2e44a8")
     }
 
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -52,39 +57,105 @@ class TabloRepo {
             val deviceMacAddress = device.address
             LogUtils.d("BT device found $deviceName $deviceMacAddress")
             if (deviceMacAddress == ALCATEL_MAC) {
-                bluetoothAdapter.cancelDiscovery()
+                LogUtils.d("TabloRepo bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
 
-                val socket = device.createRfcommSocketToServiceRecord(UUID.randomUUID())
-                LogUtils.d("BT socket $socket")
-                currentSocket.onNext(socket.wrap())
+                try {
+                    val socket = device.createRfcommSocketToServiceRecord(BT_UUID)
+                    socket.connect()
+                    LogUtils.d("BT socket $socket")
+                    currentSocket.onNext(socket.wrap())
+                    synchronized(socketEmittersLock) {
+                        socketEmitters.forEach { if (!it.isDisposed) it.onSuccess(socket) }
+                        socketEmitters.clear()
+                    }
+                } catch (t: Throwable) {
+                    synchronized(socketEmittersLock) {
+                        socketEmitters.forEach { if (!it.isDisposed) it.onError(t) }
+                        socketEmitters.clear()
+                    }
+                }
             }
         }
     }
 
     private val isBtEnabled = BehaviorSubject.createDefault(false)
 
-    private val currentActivity = BehaviorSubject.create<Wrapper<AppCompatActivity>>()
+    private val currentActivity = BehaviorSubject.createDefault<Wrapper<AppCompatActivity>>(Wrapper(null))
 
-    private val emittersLock = Any()
+    private val enableBtEmittersLock = Any()
     private val enableBtEmitters = mutableSetOf<CompletableEmitter>()
 
-    private val currentSocket = BehaviorSubject.create<Wrapper<BluetoothSocket>>()
+    private val socketEmittersLock = Any()
+    private val socketEmitters = mutableSetOf<SingleEmitter<BluetoothSocket>>()
+
+    private val socketLock = Any()
+    private val currentSocket = BehaviorSubject.createDefault<Wrapper<BluetoothSocket>>(Wrapper(null))
 
     init {
         DIHolder.appContext.registerReceiver(btStateReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
         DIHolder.appContext.registerReceiver(btFoundReceiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
     }
 
-    fun sendData(message: String): Completable = enableBt()
-        .andThen(Completable.fromAction {
-            Thread.sleep(2000)
-//            if (Random.nextBoolean()) throw Exception("stub!")
-        })
+    fun sendData(message: String): Completable = getSocket()
+        .flatMapCompletable { socket ->
+            Completable.fromAction {
+                synchronized(socketLock) {
+                    try {
+                        LogUtils.d("TabloRepo sendData write $message")
+                        socket.outputStream.write("smth".toByteArray())
+
+                        val line = BufferedReader(InputStreamReader(socket.inputStream)).readLine()
+                        LogUtils.d("TabloRepo sendData readLine $line")
+                    } catch (t: Throwable) {
+                        socket.close()
+                        currentSocket.onNext(Wrapper(null))
+                        throw t
+                    }
+                }
+            }
+        }
         .subscribeOn(DIHolder.modelSchedulersProvider.io)
         .also { LogUtils.d("TabloRepo sendData $message") }
 
-    private fun getSocket(): Single<BluetoothSocket> = enableBt()
-        .andThen(Single.create { })
+    private fun getSocket(): Single<BluetoothSocket> = currentSocket
+        .firstOrError()
+        .flatMap {
+            LogUtils.d("TabloRepo sendData currentSocket $it")
+            if (it.t != null) {
+                Single.just(it.t)
+            } else {
+                createSocket()
+            }
+        }
+
+    private fun createSocket(): Single<BluetoothSocket> = enableBt()
+        .andThen(Single.create { emitter: SingleEmitter<BluetoothSocket> ->
+            synchronized(socketEmittersLock) {
+                socketEmitters.add(emitter)
+            }
+            val startDiscovery = bluetoothAdapter.startDiscovery()
+            LogUtils.d("TabloRepo bluetoothAdapter.startDiscovery() $startDiscovery")
+            if (!startDiscovery) {
+                synchronized(socketEmittersLock) {
+                    socketEmitters.forEach { if (!it.isDisposed) it.onError(BluetoothDeniedException()) }
+                    socketEmitters.clear()
+                }
+            }
+        })
+        .timeout(
+            15,
+            TimeUnit.SECONDS,
+            Single.error {
+                LogUtils.d("TabloRepo createSocket timeout")
+                LogUtils.d("TabloRepo bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
+                synchronized(socketEmittersLock) {
+                    socketEmitters.forEach { if (!it.isDisposed) it.onError(TabloNotFoundException()) }
+                    socketEmitters.clear()
+                }
+                TabloNotFoundException()
+            }
+        )
+        .subscribeOn(DIHolder.modelSchedulersProvider.io)
 
     private fun enableBt(): Completable = DIHolder.permesso.permissionRequester
         .requestPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -101,7 +172,7 @@ class TabloRepo {
                     .firstOrError()
                     .flatMapCompletable { activity ->
                         Completable.create { emitter ->
-                            synchronized(emittersLock) {
+                            synchronized(enableBtEmittersLock) {
                                 enableBtEmitters.add(emitter)
                             }
                             LogUtils.d("TabloRepo startActivityForResult")
@@ -113,6 +184,7 @@ class TabloRepo {
                     }
             }
         }
+        .subscribeOn(DIHolder.modelSchedulersProvider.io)
 
     fun onActivityCreate(activity: AppCompatActivity) {
         @Suppress("UNUSED")
@@ -129,21 +201,23 @@ class TabloRepo {
         })
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_ENABLE_BT) {
             val enabled = resultCode == Activity.RESULT_OK
             isBtEnabled.onNext(enabled)
-            synchronized(emittersLock) {
+            synchronized(enableBtEmittersLock) {
                 enableBtEmitters.forEach {
-                    if (enabled) {
-                        it.onComplete()
-                    } else {
-                        it.onError(BluetoothDeniedException())
+                    if (!it.isDisposed) {
+                        if (enabled) {
+                            it.onComplete()
+                        } else {
+                            it.onError(BluetoothDeniedException())
+                        }
                     }
                 }
                 enableBtEmitters.clear()
             }
-            bluetoothAdapter.startDiscovery()
         }
     }
 }

@@ -10,6 +10,7 @@ import com.qwert2603.btablo.BuildConfig
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.di.DIHolder
 import com.qwert2603.btablo.model.BluetoothDeniedException
+import com.qwert2603.btablo.model.TabloNotFoundException
 import com.qwert2603.btablo.utils.BluetoothActivity
 import com.qwert2603.btablo.utils.doOnTextChange
 import com.qwert2603.btablo.utils.toIntOrZero
@@ -85,6 +86,7 @@ class TabloActivity : BluetoothActivity<TabloViewState, TabloView, TabloPresente
                     is SendingState.Error -> when (vs.sendingState.t) {
                         is PermissionDeniedException -> R.string.sending_state_error_no_geo_permission
                         is BluetoothDeniedException -> R.string.sending_state_error_bluetooth_denied
+                        is TabloNotFoundException -> R.string.sending_state_error_tablo_not_found
                         else -> R.string.sending_state_error
                     }
                     SendingState.Success -> R.string.sending_state_success

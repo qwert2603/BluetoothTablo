@@ -20,6 +20,7 @@
 
     <string name="sending_state_error_no_geo_permission">Нет разрешения на геолокацию!</string>
     <string name="sending_state_error_bluetooth_denied">Bluetooth отключен!</string>
+    <string name="sending_state_error_tablo_not_found">Табло не найдено!</string>
     <string name="sending_state_error">Ошибка!</string>
 
     <string name="has_unsent_changes">Есть неотправленные данные</string>

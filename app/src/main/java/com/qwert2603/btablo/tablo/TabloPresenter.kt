@@ -2,15 +2,15 @@ package com.qwert2603.btablo.tablo
 
 import com.qwert2603.andrlib.base.mvi.BasePresenter
 import com.qwert2603.andrlib.base.mvi.PartialChange
+import com.qwert2603.andrlib.util.LogUtils
 import com.qwert2603.btablo.di.DIHolder
-import com.qwert2603.btablo.utils.LogUtils
 import io.reactivex.Observable
 
 class TabloPresenter : BasePresenter<TabloView, TabloViewState>(DIHolder.uiSchedulerProvider) {
 
     override val initialState = TabloViewState(
         sendingState = null,
-        hasUnsentChanges = true,
+        hasUnsentChanges = false,
         changedAfterSendingStarted = false
     )
 
