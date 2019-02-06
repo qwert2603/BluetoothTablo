@@ -123,7 +123,7 @@ class TabloRepo {
                     }
                 }
                 .timeout(
-                    25,
+                    10,
                     TimeUnit.SECONDS,
                     Completable.error {
                         LogUtils.d("TabloRepo sendData timeout")
