@@ -12,6 +12,12 @@ class BluetoothTabloApplication : Application() {
         DIHolder.appContext = this
 
         LogUtils.APP_TAG = "bluetooth_tablo"
+        LogUtils.logType =
+            if (BuildConfig.DEBUG) {
+                LogUtils.LogType.ANDROID
+            } else {
+                LogUtils.LogType.NONE
+            }
 
         RxJavaPlugins.setErrorHandler {
             LogUtils.e("RxJavaPlugins.setErrorHandler", it)
