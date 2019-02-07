@@ -33,18 +33,25 @@ import java.util.concurrent.TimeoutException
 
 class TabloRepo {
 
-    private data class ValueToWait<T>(
-        val version: Long,
-        val value: T
+    private class ValueToWait<T>(
+        @Volatile private var value: T
     ) {
-        fun createNext(t: T) = copy(version = version + 1, value = t)
+        @Volatile
+        private var version: Long = 1
 
-        companion object {
-            fun makeUpdate(action: () -> Unit) {
-                synchronized(ValueToWait::class.java) {
-                    action()
-                }
+        fun makeUpdate(nextValue: T) {
+            synchronized(this) {
+                value = nextValue
+                ++version
             }
+        }
+
+        fun waitNext(): T {
+            val prevVersion = version
+
+            while (prevVersion == version) Thread.yield()
+
+            return value
         }
     }
 
@@ -66,11 +73,9 @@ class TabloRepo {
 
     private val currentActivity = BehaviorSubject.createDefault<Wrapper<AppCompatActivity>>(Wrapper(null))
 
-    @Volatile
-    private var isBtEnabled = ValueToWait(1, false)
+    private val isBtEnabled = ValueToWait(false)
 
-    @Volatile
-    private var currentSocket = ValueToWait(1, Wrapper<BluetoothSocket>(null))
+    private val currentSocket = ValueToWait(Wrapper<BluetoothSocket>(null))
 
     private val sendScheduler = Schedulers.from(Executors.newFixedThreadPool(8))
 
@@ -86,7 +91,7 @@ class TabloRepo {
                 LogUtils.d("TabloRepo btFoundReceiver bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
 
                 val socket = device.createInsecureRfcommSocketToServiceRecord(BT_UUID)
-                ValueToWait.makeUpdate { currentSocket = currentSocket.createNext(socket.wrap()) }
+                currentSocket.makeUpdate(socket.wrap())
             }
         }
     }
@@ -98,7 +103,7 @@ class TabloRepo {
                 .timeout(15, TimeUnit.SECONDS, sendScheduler, Single.error(TabloNotFoundException()))
         }
         .map { MessagesSender(it) }
-        .cacheIfSuccess("skt")
+        .cacheIfSuccess("cachingMessagesSender")
 
     init {
         DIHolder.appContext.registerReceiver(btFoundReceiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
@@ -161,16 +166,12 @@ class TabloRepo {
 
             LogUtils.d("TabloRepo enableBt activity $activity")
 
-            val prevVersion = isBtEnabled.version
-
             activity.startActivityForResult(
                 Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),
                 REQUEST_ENABLE_BT
             )
 
-            while (prevVersion == isBtEnabled.version) Thread.yield()
-
-            if (!isBtEnabled.value) throw BluetoothDeniedException()
+            if (!isBtEnabled.waitNext()) throw BluetoothDeniedException()
         }
         .toSingleDefault(Unit)
         .doOnSubscribe { LogUtils.d("TabloRepo enableBt doOnSubscribe") }
@@ -179,7 +180,7 @@ class TabloRepo {
     private fun getCurrentSocket(): Single<BluetoothSocket> = Single
         .create { emitter: SingleEmitter<BluetoothSocket> ->
 
-            ValueToWait.makeUpdate { currentSocket = currentSocket.createNext(Wrapper(null)) }
+            currentSocket.makeUpdate(Wrapper(null))
 
             emitter.setCancellable {
                 LogUtils.d("TabloRepo getCurrentSocket setCancellable called bluetoothAdapter.isDiscovering ${bluetoothAdapter.isDiscovering}")
@@ -188,16 +189,12 @@ class TabloRepo {
                 }
             }
 
-            val prevVersion = currentSocket.version
-
             LogUtils.d("TabloRepo getCurrentSocket bluetoothAdapter.isDiscovering ${bluetoothAdapter.isDiscovering}")
             if (!bluetoothAdapter.isDiscovering) {
                 LogUtils.d("TabloRepo getCurrentSocket bluetoothAdapter.startDiscovery() ${bluetoothAdapter.startDiscovery()}")
             }
 
-            while (prevVersion == currentSocket.version) Thread.yield()
-
-            val socket = currentSocket.value.t
+            val socket = currentSocket.waitNext().t
 
             LogUtils.d("TabloRepo getCurrentSocket socket $socket")
 
@@ -228,7 +225,8 @@ class TabloRepo {
         init {
             executorService.submit {
                 while (true) {
-                    Thread.sleep(50)
+//                    Thread.sleep(50)
+                    Thread.yield()
                     Log.v("bluetooth_tablo", "MessagesSender executorService while (true)")
                     val message: Message = synchronized(messagesLock) { messages.pollFirst() } ?: continue
                     doSendMessage(message)
@@ -313,7 +311,7 @@ class TabloRepo {
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_ENABLE_BT) {
             val enabled = resultCode == Activity.RESULT_OK
-            ValueToWait.makeUpdate { isBtEnabled = isBtEnabled.createNext(enabled) }
+            isBtEnabled.makeUpdate(enabled)
         }
     }
 }
