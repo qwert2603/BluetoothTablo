@@ -264,7 +264,7 @@ class AnthTabloRepo {
                 socket.outputStream.flush()
                 LogUtils.d("MessagesSender doSendMessage flush")
 
-                Thread.sleep(1000)//todo:remove
+//                Thread.sleep(1000)
 
                 val bufferedReader = BufferedReader(InputStreamReader(socket.inputStream))
                 val actualChecksum = bufferedReader.readLine()
