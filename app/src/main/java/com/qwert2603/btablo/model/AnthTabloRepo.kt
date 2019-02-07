@@ -91,7 +91,7 @@ class AnthTabloRepo {
         }
     }
 
-    private val skt: CachingSingle<MessagesSender> = requestGeoPermission()
+    private val cachingMessagesSender: CachingSingle<MessagesSender> = requestGeoPermission()
         .flatMap { enableBt() }
         .flatMap {
             getCurrentSocket()
@@ -104,7 +104,8 @@ class AnthTabloRepo {
         DIHolder.appContext.registerReceiver(btFoundReceiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
     }
 
-    fun sendData(message: String): Completable = skt.get()
+    fun sendData(message: String): Completable = Single
+        .defer { cachingMessagesSender.get() }
         .flatMapCompletable { messagesSender ->
             Completable
                 .create { emitter ->
@@ -131,9 +132,14 @@ class AnthTabloRepo {
                     Completable.error(BluetoothConnectionException(TimeoutException()))
                 )
                 .doOnError {
-                    skt.reset()
+                    LogUtils.d("TabloRepo sendData doOnError $it")
                     messagesSender.stop()
                 }
+        }
+        .retry { i, t ->
+            LogUtils.d("TabloRepo sendData retry $i $t")
+            cachingMessagesSender.reset()
+            return@retry i == 1 && t is BluetoothConnectionException
         }
 
     private fun requestGeoPermission(): Single<Unit> = DIHolder.permesso.permissionRequester
