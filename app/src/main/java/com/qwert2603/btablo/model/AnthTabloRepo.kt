@@ -15,6 +15,7 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.qwert2603.andrlib.util.LogUtils
 import com.qwert2603.btablo.di.DIHolder
+import com.qwert2603.btablo.utils.CachingSingle
 import com.qwert2603.btablo.utils.Wrapper
 import com.qwert2603.btablo.utils.cacheIfSuccess
 import com.qwert2603.btablo.utils.wrap
@@ -71,7 +72,7 @@ class AnthTabloRepo {
     @Volatile
     private var currentSocket = ValueToWait(1, Wrapper<BluetoothSocket>(null))
 
-    private val sendScheduler = Schedulers.newThread()
+    private val sendScheduler = Schedulers.from(Executors.newFixedThreadPool(8))
 
     private val btFoundReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -90,12 +91,12 @@ class AnthTabloRepo {
         }
     }
 
-    private val skt = requestGeoPermission()
-        .andThen(enableBt())
-        .andThen(
+    private val skt: CachingSingle<MessagesSender> = requestGeoPermission()
+        .flatMap { enableBt() }
+        .flatMap {
             getCurrentSocket()
                 .timeout(15, TimeUnit.SECONDS, sendScheduler, Single.error(TabloNotFoundException()))
-        )
+        }
         .map { MessagesSender(it) }
         .cacheIfSuccess("skt")
 
@@ -135,12 +136,13 @@ class AnthTabloRepo {
                 }
         }
 
-    private fun requestGeoPermission(): Completable = DIHolder.permesso.permissionRequester
+    private fun requestGeoPermission(): Single<Unit> = DIHolder.permesso.permissionRequester
         .requestPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
-        .ignoreElement()
+        .map { Unit }
+        .doOnSubscribe { LogUtils.d("TabloRepo requestGeoPermission doOnSubscribe") }
         .subscribeOn(sendScheduler)
 
-    private fun enableBt(): Completable = Completable
+    private fun enableBt(): Single<Unit> = Completable
         .fromAction {
             LogUtils.d("TabloRepo enableBt bluetoothAdapter.isEnabled ${bluetoothAdapter.isEnabled}")
             if (bluetoothAdapter.isEnabled) return@fromAction
@@ -164,6 +166,8 @@ class AnthTabloRepo {
 
             if (!isBtEnabled.value) throw BluetoothDeniedException()
         }
+        .toSingleDefault(Unit)
+        .doOnSubscribe { LogUtils.d("TabloRepo enableBt doOnSubscribe") }
         .subscribeOn(sendScheduler)
 
     private fun getCurrentSocket(): Single<BluetoothSocket> = Single
@@ -241,7 +245,7 @@ class AnthTabloRepo {
         }
 
         fun stop() {
-            LogUtils.d("MessagesSender stop ${executorService.isShutdown}")
+            LogUtils.d("MessagesSender stop executorService.isShutdown=${executorService.isShutdown}")
             executorService.shutdownNow()
         }
 
