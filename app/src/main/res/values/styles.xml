@@ -3,6 +3,7 @@
     <style name="AppThemeBase" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:fontFamily">@font/google_sans</item>
     </style>
 
     <style name="AppThemeBase.AppTheme">
