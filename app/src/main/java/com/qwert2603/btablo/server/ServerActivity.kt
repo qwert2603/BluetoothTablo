@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.qwert2603.btablo.R
-import com.qwert2603.btablo.model.AnthTabloRepo
+import com.qwert2603.btablo.model.TabloRepo
 import kotlinx.android.synthetic.main.activity_server.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -33,7 +33,7 @@ class ServerActivity : AppCompatActivity() {
 
         val serverSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(
             getString(R.string.app_name),
-            AnthTabloRepo.BT_UUID
+            TabloRepo.BT_UUID
         )
 
         fun addText(text: String) {

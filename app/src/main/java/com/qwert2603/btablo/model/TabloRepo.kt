@@ -31,7 +31,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
-class AnthTabloRepo {
+class TabloRepo {
 
     private data class ValueToWait<T>(
         val version: Long,
