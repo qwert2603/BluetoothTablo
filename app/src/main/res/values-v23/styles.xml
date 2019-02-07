@@ -1,0 +1,8 @@
+<resources>
+
+    <style name="AppThemeBase.AppTheme">
+        <item name="colorPrimaryDark">?android:windowBackground</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+</resources>

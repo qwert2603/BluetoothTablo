@@ -9,6 +9,7 @@
     tools:context=".tablo.TabloActivity">
 
     <com.google.android.material.appbar.AppBarLayout
+        style="@style/ActionBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
@@ -31,6 +32,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:animateLayoutChanges="true"
             android:orientation="vertical">
 
@@ -154,10 +156,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:text="@string/has_unsent_changes"
                 android:textColor="@android:color/black"
                 android:textSize="12sp"
-                android:textStyle="italic"
-                android:text="@string/has_unsent_changes" />
+                android:textStyle="italic" />
 
             <LinearLayout
                 android:id="@+id/sendingState_LinearLayout"
