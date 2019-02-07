@@ -13,7 +13,7 @@
         android:pivotX="12"
         android:pivotY="12"
         android:scaleY="0.85"
-        android:translateX="4.5">
+        android:translateX="5.7">
 
         <path
             android:pathData="M0 6L12 18L6 24L6 0L12 6L0 18"
