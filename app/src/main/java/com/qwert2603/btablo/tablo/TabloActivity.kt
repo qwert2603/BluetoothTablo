@@ -30,15 +30,6 @@ class TabloActivity : BluetoothActivity<TabloViewState, TabloView, TabloPresente
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tablo)
 
-        /*todo
-        * максимальная длина поля называния команды?
-        * счёт -- только целые неотрицательные числа?
-        * максимальный размер счёта?
-        * формат отправки данных?
-        * ответ табло, что данные приняты успешно / неуспешно (контрольная сумма)?
-        * пинг табло раз в секунду?
-        */
-
         val settingsRepo = DIHolder.settingsRepo
 
         team1_EditText.setText(settingsRepo.team1)
