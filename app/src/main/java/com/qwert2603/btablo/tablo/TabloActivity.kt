@@ -19,6 +19,8 @@ import com.qwert2603.btablo.utils.toIntOrZero
 import com.qwert2603.permesso.exception.PermissionDeniedException
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_tablo.*
+import kotlinx.android.synthetic.main.include_points.*
+import kotlinx.android.synthetic.main.include_teams.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -54,7 +56,7 @@ class TabloActivity : BluetoothActivity<TabloViewState, TabloView, TabloPresente
         )
     }
 
-    override fun sendClicks(): Observable<Any> = RxView.clicks(send_Button)
+    override fun sendClicks(): Observable<Any> = RxView.clicks(sendAll_Button)
 
     override fun anyFieldChanged(): Observable<Any> = Observable.merge(
         listOf(

@@ -32,124 +32,32 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
             android:animateLayoutChanges="true"
             android:orientation="vertical">
 
-            <LinearLayout
+            <Button
+                android:id="@+id/reset_Button"
+                style="@style/ButtonStyle.Margin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:text="@string/button_reset" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+            <include layout="@layout/include_teams" />
 
-                    android:layout_weight="1">
+            <include layout="@layout/include_time" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/team1_EditText"
-                        style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/hint_team1"
-                        android:imeOptions="flagNoFullscreen"
-                        android:inputType="text"
-                        android:maxLength="@integer/team_max_length"
-                        android:maxLines="1"
-                        android:selectAllOnFocus="true"
-                        tools:text="Хозяева" />
+            <include layout="@layout/include_points" />
 
-                </com.google.android.material.textfield.TextInputLayout>
+            <include layout="@layout/include_hold" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/team2_EditText"
-                        style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/hint_team2"
-                        android:imeOptions="flagNoFullscreen"
-                        android:inputType="text"
-                        android:maxLength="@integer/team_max_length"
-                        android:maxLines="1"
-                        android:selectAllOnFocus="true"
-                        tools:text="Гости" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:layout_weight="1">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/points1_EditText"
-                        style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/hint_points1"
-                        android:imeOptions="flagNoFullscreen"
-                        android:inputType="number"
-                        android:maxLength="@integer/points_max_length"
-                        android:selectAllOnFocus="true"
-                        tools:text="26" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/points2_EditText"
-                        style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/hint_points2"
-                        android:imeOptions="flagNoFullscreen"
-                        android:inputType="number"
-                        android:maxLength="@integer/points_max_length"
-                        android:selectAllOnFocus="true"
-                        tools:text="19" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
+            <include layout="@layout/include_attack" />
 
             <Button
-                android:id="@+id/send_Button"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:id="@+id/sendAll_Button"
+                style="@style/ButtonStyle.Margin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:padding="16dp"
-                android:text="@string/button_send"
-                android:textSize="16sp"
-                app:strokeColor="@color/colorAccent" />
+                android:text="@string/button_send_all" />
 
             <TextView
                 android:id="@+id/hasUnsentChanges_TextView"

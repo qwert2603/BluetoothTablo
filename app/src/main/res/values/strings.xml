@@ -5,7 +5,27 @@
     <string name="hint_team2">Команда 2</string>
     <string name="hint_points1">Счёт 1</string>
     <string name="hint_points2">Счёт 2</string>
-    <string name="button_send">Отправить</string>
+    <string name="hint_period">Период</string>
+    <string name="hint_minutes">Минуты</string>
+    <string name="hint_seconds">Секунды</string>
+    <string name="hint_fouls">Фолы</string>
+    <string name="hint_attack">Время атаки</string>
+
+    <string name="button_send_all">Отправить всё</string>
+    <string name="button_reset">Сброс</string>
+    <string name="button_start">Старт</string>
+    <string name="button_stop">Стоп</string>
+    <string name="button_signal1">Сигнал 1</string>
+    <string name="button_signal2">Сигнал 2</string>
+    <string name="button_send_teams">Отправить названия команд</string>
+    <string name="button_clear">Очистить</string>
+    <string name="button_server">Сервер</string>
+    <string name="button_client">Клиент</string>
+    <string name="button_24sec">24с</string>
+    <string name="button_14sec">14с</string>
+
+    <string name="button_plus">+</string>
+    <string name="button_minus">-</string>
 
     <string name="about_text_format">
         <![CDATA[
@@ -27,7 +47,5 @@
 
     <string name="has_unsent_changes">Есть неотправленные данные</string>
 
-    <string name="button_clear">Очистить</string>
-    <string name="button_server">Сервер</string>
-    <string name="button_client">Клиент</string>
+    <string name="text_hold">Владение</string>
 </resources>

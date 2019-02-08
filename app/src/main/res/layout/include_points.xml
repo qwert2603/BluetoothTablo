@@ -1,0 +1,99 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    tools:showIn="@layout/activity_tablo">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/points1_EditText"
+                style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_points1"
+                android:imeOptions="flagNoFullscreen"
+                android:inputType="number"
+                android:maxLength="@integer/points_max_length"
+                android:selectAllOnFocus="true"
+                tools:text="26" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <include layout="@layout/include_buttons_plus_minus" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_weight="3"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/period_EditText"
+                style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_period"
+                android:imeOptions="flagNoFullscreen"
+                android:inputType="number"
+                android:maxLength="1"
+                android:selectAllOnFocus="true"
+                tools:text="2" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <include layout="@layout/include_buttons_plus_minus" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_weight="3"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/points2_EditText"
+                style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_points2"
+                android:imeOptions="flagNoFullscreen"
+                android:inputType="number"
+                android:maxLength="@integer/points_max_length"
+                android:selectAllOnFocus="true"
+                tools:text="19" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <include layout="@layout/include_buttons_plus_minus" />
+
+    </LinearLayout>
+
+</LinearLayout>
