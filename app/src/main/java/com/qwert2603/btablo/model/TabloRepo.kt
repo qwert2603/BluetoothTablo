@@ -8,7 +8,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -24,8 +23,6 @@ import io.reactivex.Single
 import io.reactivex.SingleEmitter
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -60,13 +57,6 @@ class TabloRepo {
         private const val ALCATEL_MAC = "3C:CB:7C:39:DA:95"
         private const val REDMI_MAC = "E0:62:67:66:E7:D6"
         val BT_UUID: UUID = UUID.fromString("a3768bc3-601a-4f7b-ab72-798c5c2e44a8")
-
-        private fun noThrow(action: () -> Unit) {
-            try {
-                action()
-            } catch (t: Throwable) {
-            }
-        }
     }
 
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -207,90 +197,6 @@ class TabloRepo {
             }
         }
         .subscribeOn(sendScheduler)
-
-    private class MessagesSender(private val socket: BluetoothSocket) {
-
-        data class Message(
-            val uuid: String,
-            val text: String,
-            val onSend: (t: Throwable?) -> Unit
-        )
-
-        private val messagesLock = Any()
-
-        private var messages = ArrayDeque<Message>()
-
-        private val executorService = Executors.newSingleThreadExecutor()
-
-        init {
-            executorService.submit {
-                while (true) {
-//                    Thread.sleep(50)
-                    Thread.yield()
-                    Log.v("bluetooth_tablo", "MessagesSender executorService while (true)")
-                    val message: Message = synchronized(messagesLock) { messages.pollFirst() } ?: continue
-                    doSendMessage(message)
-                }
-            }
-        }
-
-        fun sendMessage(message: Message) {
-            synchronized(messagesLock) {
-                LogUtils.d("MessagesSender sendMessage $message")
-                messages.add(message)
-            }
-        }
-
-        fun cancelMessage(message: Message) {
-            synchronized(messagesLock) {
-                val removed = messages.remove(message)
-                LogUtils.d("MessagesSender cancelMessage $removed $message")
-            }
-        }
-
-        fun stop() {
-            LogUtils.d("MessagesSender stop executorService.isShutdown=${executorService.isShutdown}")
-            executorService.shutdownNow()
-        }
-
-        private fun doSendMessage(message: Message) {
-            try {
-                LogUtils.d("MessagesSender doSendMessage $message")
-                LogUtils.d("MessagesSender doSendMessage socket.isConnected = ${socket.isConnected} $socket")
-                if (!socket.isConnected) {
-                    socket.connect()
-                }
-
-                val expectedChecksum = message.text.hashCode().toString()
-
-                LogUtils.d("MessagesSender doSendMessage write ${message.text}")
-                socket.outputStream.write("${message.text}\n".toByteArray())
-                socket.outputStream.flush()
-                LogUtils.d("MessagesSender doSendMessage flush")
-
-//                Thread.sleep(1000)
-
-                val bufferedReader = BufferedReader(InputStreamReader(socket.inputStream))
-                val actualChecksum = bufferedReader.readLine()
-                LogUtils.d("MessagesSender doSendMessage readLine $actualChecksum")
-
-                if (actualChecksum != expectedChecksum) {
-                    throw WrongChecksumException()
-                }
-
-                message.onSend(null)
-            } catch (t: Throwable) {
-                noThrow { socket.close() }
-                message.onSend(
-                    when (t) {
-                        is WrongChecksumException -> t
-                        else -> BluetoothConnectionException(t)
-                    }
-                )
-                stop()
-            }
-        }
-    }
 
     fun onActivityCreate(activity: AppCompatActivity) {
         @Suppress("UNUSED")
