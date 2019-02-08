@@ -1,6 +1,7 @@
 package com.qwert2603.btablo.utils
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -12,7 +13,7 @@ class PrefsString(
     override fun getValue(thisRef: Any, property: KProperty<*>): String = prefs.getString(key, defaultValue)!!
 
     override fun setValue(thisRef: Any, property: KProperty<*>, value: String) {
-        prefs.edit().putString(key, value).apply()
+        prefs.edit { putString(key, value) }
     }
 }
 
@@ -24,6 +25,6 @@ class PrefsInt(
     override fun getValue(thisRef: Any, property: KProperty<*>): Int = prefs.getInt(key, defaultValue)
 
     override fun setValue(thisRef: Any, property: KProperty<*>, value: Int) {
-        prefs.edit().putInt(key, value).commit()
+        prefs.edit { putInt(key, value) }
     }
 }
