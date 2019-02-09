@@ -9,8 +9,8 @@ class SettingsRepo {
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(DIHolder.appContext)
 
-    var team1 by PrefsString(prefs, "team1", "Хозяева")
-    var team2 by PrefsString(prefs, "team2", "Гости")
+    var team1 by PrefsString(prefs, "team1", "Команда 1")
+    var team2 by PrefsString(prefs, "team2", "Команда 2")
     var points1 by PrefsInt(prefs, "points1")
     var points2 by PrefsInt(prefs, "points2")
 

@@ -3,6 +3,7 @@ package com.qwert2603.btablo.model
 import android.bluetooth.BluetoothSocket
 import android.util.Log
 import com.qwert2603.andrlib.util.LogUtils
+import com.qwert2603.btablo.utils.noThrow
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.*
@@ -88,16 +89,6 @@ class MessagesSender(private val socket: BluetoothSocket) {
                 }
             )
             stop()
-        }
-    }
-
-    companion object {
-
-        private fun noThrow(action: () -> Unit) {
-            try {
-                action()
-            } catch (t: Throwable) {
-            }
         }
     }
 }

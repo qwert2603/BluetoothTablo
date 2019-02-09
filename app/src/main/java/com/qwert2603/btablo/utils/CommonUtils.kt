@@ -3,6 +3,7 @@ package com.qwert2603.btablo.utils
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
+import androidx.annotation.IntRange
 import com.qwert2603.andrlib.util.LogUtils
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
@@ -70,3 +71,22 @@ class CachingSingle<T>(private val origin: Single<T>, private val name: String) 
         return cached
     }
 }
+
+fun noThrow(action: () -> Unit) {
+    try {
+        action()
+    } catch (t: Throwable) {
+    }
+}
+
+@IntRange(from = 0, to = 9)
+fun Int.digitAt(digit: Int): Int {
+    var divider = 1
+    for (i in 0..digit) {
+        divider *= 10
+    }
+    return this / divider % 10
+}
+
+fun Int.convertToByte() = this.toByte()
+fun String.convertToBytes() = this.toByteArray()

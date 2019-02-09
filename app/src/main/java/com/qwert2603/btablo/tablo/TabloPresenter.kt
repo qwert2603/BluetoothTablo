@@ -19,7 +19,7 @@ class TabloPresenter : BasePresenter<TabloView, TabloViewState>(DIHolder.uiSched
             .map { TabloPartialChange.AnyFieldChanged },
         intent { it.sendClicks() }
             .switchMap {
-                DIHolder.tabloRepo.sendData(DIHolder.settingsRepo.getMessage())
+                DIHolder.bluetoothRepo.sendData(DIHolder.settingsRepo.getMessage().toByteArray())
                     .toSingleDefault<TabloPartialChange>(TabloPartialChange.SendSuccess)
                     .onErrorReturn {
                         LogUtils.e(msg = "TabloPresenter sendData", t = it)

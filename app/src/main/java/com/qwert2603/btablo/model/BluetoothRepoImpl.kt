@@ -28,7 +28,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
-class TabloRepo {
+class BluetoothRepoImpl : BluetoothRepo {
 
     private class ValueToWait<T>(
         @Volatile private var value: T
@@ -57,6 +57,31 @@ class TabloRepo {
         private const val ALCATEL_MAC = "3C:CB:7C:39:DA:95"
         private const val REDMI_MAC = "E0:62:67:66:E7:D6"
         val BT_UUID: UUID = UUID.fromString("a3768bc3-601a-4f7b-ab72-798c5c2e44a8")
+    }
+
+    override val activityCallbacks = object : BluetoothRepo.ActivityCallbacks {
+        override fun onActivityCreate(activity: AppCompatActivity) {
+            @Suppress("UNUSED")
+            activity.lifecycle.addObserver(object : LifecycleObserver {
+                @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+                fun onCreate() {
+                    currentActivity.onNext(activity.wrap())
+                }
+
+                @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                fun onDestroy() {
+                    currentActivity.onNext(Wrapper(null))
+                }
+            })
+        }
+
+        @Suppress("UNUSED_PARAMETER")
+        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            if (requestCode == REQUEST_ENABLE_BT) {
+                val enabled = resultCode == Activity.RESULT_OK
+                isBtEnabled.makeUpdate(enabled)
+            }
+        }
     }
 
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -99,13 +124,13 @@ class TabloRepo {
         DIHolder.appContext.registerReceiver(btFoundReceiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
     }
 
-    fun sendData(message: String): Completable = Single
+    override fun sendData(text: ByteArray): Completable = Single
         .defer { cachingMessagesSender.get() }
         .flatMapCompletable { messagesSender ->
             Completable
                 .create { emitter ->
                     val uuid = UUID.randomUUID().toString()
-                    val msg = MessagesSender.Message(uuid, message) { t: Throwable? ->
+                    val msg = MessagesSender.Message(uuid, String(text)) { t: Throwable? ->
                         if (!emitter.isDisposed) {
                             if (t == null) {
                                 emitter.onComplete()
@@ -197,27 +222,4 @@ class TabloRepo {
             }
         }
         .subscribeOn(sendScheduler)
-
-    fun onActivityCreate(activity: AppCompatActivity) {
-        @Suppress("UNUSED")
-        activity.lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-            fun onCreate() {
-                currentActivity.onNext(activity.wrap())
-            }
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
-                currentActivity.onNext(Wrapper(null))
-            }
-        })
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_ENABLE_BT) {
-            val enabled = resultCode == Activity.RESULT_OK
-            isBtEnabled.makeUpdate(enabled)
-        }
-    }
 }
