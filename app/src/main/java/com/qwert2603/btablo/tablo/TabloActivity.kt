@@ -248,11 +248,11 @@ class TabloActivity : BluetoothActivity() {
 
         sec24_Button.setOnClickListener {
             vsObservableField.updateField { vs -> vs.copy(attackSeconds = 24) }
-            DIHolder.settingsRepo.setAttackStarted(false)
+            DIHolder.settingsRepo.setAttackStarted(true)
         }
         sec14_Button.setOnClickListener {
             vsObservableField.updateField { vs -> vs.copy(attackSeconds = 14) }
-            DIHolder.settingsRepo.setAttackStarted(false)
+            DIHolder.settingsRepo.setAttackStarted(true)
         }
 
         sendAll_Button.setOnClickListener {
