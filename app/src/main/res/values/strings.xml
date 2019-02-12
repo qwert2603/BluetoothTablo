@@ -45,7 +45,5 @@
     <string name="sending_state_error_wrong_checksum">Ошибка передачи данных!</string>
     <string name="sending_state_error">Ошибка!</string>
 
-    <string name="has_unsent_changes">Есть неотправленные данные</string>
-
     <string name="text_hold">Владение</string>
 </resources>

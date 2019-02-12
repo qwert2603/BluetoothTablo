@@ -4,8 +4,6 @@ import android.bluetooth.BluetoothSocket
 import android.util.Log
 import com.qwert2603.andrlib.util.LogUtils
 import com.qwert2603.btablo.utils.noThrow
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -62,22 +60,12 @@ class MessagesSender(private val socket: BluetoothSocket) {
                 socket.connect()
             }
 
-            val expectedChecksum = message.text.hashCode().toString()
-
             LogUtils.d("MessagesSender doSendMessage write ${message.text}")
             socket.outputStream.write("${message.text}\n".toByteArray())
             socket.outputStream.flush()
             LogUtils.d("MessagesSender doSendMessage flush")
 
 //                Thread.sleep(1000)
-
-            val bufferedReader = BufferedReader(InputStreamReader(socket.inputStream))
-            val actualChecksum = bufferedReader.readLine()
-            LogUtils.d("MessagesSender doSendMessage readLine $actualChecksum")
-
-            if (actualChecksum != expectedChecksum) {
-                throw WrongChecksumException()
-            }
 
             message.onSend(null)
         } catch (t: Throwable) {

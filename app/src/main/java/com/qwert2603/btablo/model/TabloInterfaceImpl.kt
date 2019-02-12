@@ -89,5 +89,5 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
                     .plus(text)
                     .plus(TabloConst.STOP_BYTE)
             }
-            .flatMapCompletable { bluetoothRepo.sendData(it) }
+            .flatMapCompletable { bluetoothRepo.sendData(command, it) }
 }

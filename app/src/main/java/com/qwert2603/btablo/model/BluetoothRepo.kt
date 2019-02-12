@@ -6,7 +6,7 @@ import io.reactivex.Completable
 
 interface BluetoothRepo {
     val activityCallbacks: ActivityCallbacks
-    fun sendData(text: ByteArray): Completable
+    fun sendData(command: TabloConst.Command,text: ByteArray): Completable
 
     interface ActivityCallbacks {
         fun onActivityCreate(activity: AppCompatActivity)

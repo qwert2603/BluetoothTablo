@@ -124,13 +124,12 @@ class BluetoothRepoImpl : BluetoothRepo {
         DIHolder.appContext.registerReceiver(btFoundReceiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
     }
 
-    override fun sendData(text: ByteArray): Completable = Single
+    override fun sendData(command: TabloConst.Command, text: ByteArray): Completable = Single
         .defer { cachingMessagesSender.get() }
         .flatMapCompletable { messagesSender ->
             Completable
                 .create { emitter ->
-                    val uuid = UUID.randomUUID().toString()
-                    val msg = MessagesSender.Message(uuid, String(text)) { t: Throwable? ->
+                    val msg = MessagesSender.Message(uuid = command.name, text = String(text)) { t: Throwable? ->
                         if (!emitter.isDisposed) {
                             if (t == null) {
                                 emitter.onComplete()

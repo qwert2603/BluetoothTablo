@@ -11,10 +11,9 @@ import com.qwert2603.permesso.Permesso
 object DIHolder {
     lateinit var appContext: Context
 
-    val settingsRepo by lazy { SettingsRepo() }
     val bluetoothRepo: BluetoothRepo by lazy { BluetoothRepoImpl() }
-    val tabloInterface: TabloInterface by lazy { TabloInterfaceImpl(bluetoothRepo) }
-
+    private val tabloInterface: TabloInterface by lazy { TabloInterfaceImpl(bluetoothRepo) }
+    val settingsRepo by lazy { SettingsRepo(tabloInterface) }
 
     private val schedulersProviderImpl = SchedulersProviderImpl()
 

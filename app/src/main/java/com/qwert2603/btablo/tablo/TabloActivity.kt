@@ -6,10 +6,17 @@ import android.text.Html
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import com.qwert2603.andrlib.util.LogUtils
+import com.qwert2603.andrlib.util.color
 import com.qwert2603.btablo.BuildConfig
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.di.DIHolder
+import com.qwert2603.btablo.model.BluetoothConnectionException
+import com.qwert2603.btablo.model.BluetoothDeniedException
+import com.qwert2603.btablo.model.TabloNotFoundException
+import com.qwert2603.btablo.model.WrongChecksumException
 import com.qwert2603.btablo.utils.*
+import com.qwert2603.permesso.exception.PermissionDeniedException
 import kotlinx.android.synthetic.main.activity_tablo.*
 import kotlinx.android.synthetic.main.include_attack.*
 import kotlinx.android.synthetic.main.include_buttons_plus_minus.view.*
@@ -35,6 +42,11 @@ class TabloActivity : BluetoothActivity() {
         vsObservableField.changes
             .observeOn(DIHolder.uiSchedulerProvider.ui)
             .subscribe { render(it) }
+            .disposeOnDestroy(this)
+
+        DIHolder.settingsRepo.sendingState
+            .observeOn(DIHolder.uiSchedulerProvider.ui)
+            .subscribe { renderSendingState(it) }
             .disposeOnDestroy(this)
 
         DIHolder.settingsRepo.isStarted
@@ -65,6 +77,8 @@ class TabloActivity : BluetoothActivity() {
 //    override fun signal2Clicks(): Observable<Any> = RxView.clicks(signal2_Button)
 
     private fun render(vs: TabloViewState) {
+
+        LogUtils.d { "TabloActivity render $vs" }
 
         team1_EditText.setTextQQ(vs.team1)
         team2_EditText.setTextQQ(vs.team2)
@@ -105,36 +119,39 @@ class TabloActivity : BluetoothActivity() {
         )
 
         attackSeconds_EditText.setTextFromInt(vs.attackSeconds)
+    }
 
-//        sendingState_LinearLayout.setVisible(vs.sendingState != null)
-//
-//        if (vs.sendingState != null) {
-//            sending_ProgressBar.setVisible(vs.sendingState == SendingState.Sending)
-//            sendingState_TextView.text = getString(
-//                when (vs.sendingState) {
-//                    SendingState.Sending -> R.string.sending_state_sending
-//                    is SendingState.Error -> when (vs.sendingState.t) {
-//                        is PermissionDeniedException -> R.string.sending_state_error_no_geo_permission
-//                        is BluetoothDeniedException -> R.string.sending_state_error_bluetooth_denied
-//                        is TabloNotFoundException -> R.string.sending_state_error_tablo_not_found
-//                        is BluetoothConnectionException -> R.string.sending_state_error_connection_exception
-//                        is WrongChecksumException -> R.string.sending_state_error_wrong_checksum
-//                        else -> R.string.sending_state_error
-//                    }
-//                    SendingState.Success -> R.string.sending_state_success
-//                }
-//            )
-//            @Suppress("DEPRECATION")
-//            sendingState_TextView.setTextColor(
-//                resources.getColor(
-//                    when (vs.sendingState) {
-//                        SendingState.Sending -> R.color.sending_state_sending
-//                        is SendingState.Error -> R.color.sending_state_error
-//                        SendingState.Success -> R.color.sending_state_success
-//                    }
-//                )
-//            )
-//        }
+    private fun renderSendingState(sendingState: SendingState) {
+        if (sendingState == SendingState.NotSent) {
+            toolbar.subtitle = ""
+            return
+        }
+
+        toolbar.subtitle = getString(
+            when (sendingState) {
+                SendingState.Sending -> R.string.sending_state_sending
+                is SendingState.Error -> when (sendingState.t) {
+                    is PermissionDeniedException -> R.string.sending_state_error_no_geo_permission
+                    is BluetoothDeniedException -> R.string.sending_state_error_bluetooth_denied
+                    is TabloNotFoundException -> R.string.sending_state_error_tablo_not_found
+                    is BluetoothConnectionException -> R.string.sending_state_error_connection_exception
+                    is WrongChecksumException -> R.string.sending_state_error_wrong_checksum
+                    else -> R.string.sending_state_error
+                }
+                SendingState.Success -> R.string.sending_state_success
+                SendingState.NotSent -> null!!
+            }
+        )
+        toolbar.setSubtitleTextColor(
+            resources.color(
+                when (sendingState) {
+                    SendingState.Sending -> R.color.sending_state_sending
+                    is SendingState.Error -> R.color.sending_state_error
+                    SendingState.Success -> R.color.sending_state_success
+                    SendingState.NotSent -> null!!
+                }
+            )
+        )
     }
 
     private fun setListeners(vsObservableField: ObservableField<TabloViewState>) {

@@ -4,15 +4,18 @@ import android.annotation.SuppressLint
 import android.preference.PreferenceManager
 import com.google.gson.Gson
 import com.qwert2603.btablo.di.DIHolder
+import com.qwert2603.btablo.tablo.SendingState
 import com.qwert2603.btablo.tablo.TabloViewState
 import com.qwert2603.btablo.utils.ObservableField
 import com.qwert2603.btablo.utils.PreferenceUtils
 import com.qwert2603.btablo.utils.StateHolderImpl
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
-class SettingsRepo {
+class SettingsRepo(private val tabloInterface: TabloInterface) {
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(DIHolder.appContext)
 
@@ -30,11 +33,17 @@ class SettingsRepo {
         }
     }
 
-    private var _isStarted = BehaviorSubject.createDefault(false)
-    private var _isAttackStarted = BehaviorSubject.createDefault(false)
+    private val _isStarted = BehaviorSubject.createDefault(false)
+    private val _isAttackStarted = BehaviorSubject.createDefault(false)
 
     val isStarted: Observable<Boolean> = _isStarted.hide()
     val isAttackStarted: Observable<Boolean> = _isAttackStarted.hide()
+
+    private val messagesToSend = PublishSubject.create<Completable>()
+
+    private val _sendingState = BehaviorSubject.createDefault<SendingState>(SendingState.NotSent)
+
+    val sendingState: Observable<SendingState> = _sendingState.hide()
 
     init {
         makeInit()
@@ -81,6 +90,16 @@ class SettingsRepo {
             }
 
         vs.changes.subscribe { stateHolder.render(it) }
+
+        messagesToSend
+            .concatMap { completable ->
+                completable
+                    .toSingleDefault<SendingState>(SendingState.Success)
+                    .onErrorReturn { SendingState.Error(it) }
+                    .toObservable()
+                    .startWith(SendingState.Sending)
+            }
+            .subscribe { _sendingState.onNext(it) }
     }
 
     fun sendAll() {
@@ -90,7 +109,9 @@ class SettingsRepo {
     }
 
     fun sendTeams() {
-        //todo
+        val tabloViewState = vs.field
+        makeSend(tabloInterface.setTeam1Name(tabloViewState.team1))
+        makeSend(tabloInterface.setTeam2Name(tabloViewState.team2))
     }
 
     fun setStarted(started: Boolean) {
@@ -99,5 +120,9 @@ class SettingsRepo {
 
     fun setAttackStarted(attackStarted: Boolean) {
         _isAttackStarted.onNext(attackStarted)
+    }
+
+    private fun makeSend(completable: Completable) {
+        messagesToSend.onNext(completable)
     }
 }
