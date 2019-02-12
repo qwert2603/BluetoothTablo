@@ -3,7 +3,7 @@
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginTop="-20dp"
-    tools:showIn="@layout/include_time"
+    tools:showIn="@layout/activity_tablo"
     android:orientation="horizontal">
 
     <Button
