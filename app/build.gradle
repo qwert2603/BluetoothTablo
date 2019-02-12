@@ -46,11 +46,11 @@ android {
 dependencies {
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation 'androidx.appcompat:appcompat:1.1.0-alpha01'
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha02'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.core:core-ktx:1.1.0-alpha04'
 
-    ext.andrlib_version = '1.13.3'
+    ext.andrlib_version = '1.14.2'
     ext.permesso_version = '1.2'
 
     ext.rxjava_version = '2.2.6'
