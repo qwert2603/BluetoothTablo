@@ -18,7 +18,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/team1_EditText"
-                style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                style="@style/TextInputStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_team1"
@@ -40,7 +40,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/team2_EditText"
-                style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                style="@style/TextInputStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_team2"

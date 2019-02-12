@@ -20,7 +20,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/points1_EditText"
-                style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                style="@style/TextInputStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_points1"
@@ -32,7 +32,9 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <include layout="@layout/include_buttons_plus_minus" />
+        <include
+            android:id="@+id/points1_PlusMinus"
+            layout="@layout/include_buttons_plus_minus" />
 
     </LinearLayout>
 
@@ -50,7 +52,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/period_EditText"
-                style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                style="@style/TextInputStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_period"
@@ -62,7 +64,9 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <include layout="@layout/include_buttons_plus_minus" />
+        <include
+            android:id="@+id/period_PlusMinus"
+            layout="@layout/include_buttons_plus_minus" />
 
     </LinearLayout>
 
@@ -80,7 +84,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/points2_EditText"
-                style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                style="@style/TextInputStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_points2"
@@ -92,7 +96,9 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <include layout="@layout/include_buttons_plus_minus" />
+        <include
+            android:id="@+id/points2_PlusMinus"
+            layout="@layout/include_buttons_plus_minus" />
 
     </LinearLayout>
 

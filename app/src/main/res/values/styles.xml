@@ -19,12 +19,16 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Dark" />
 
     <style name="ButtonStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="strokeColor">@color/colorAccent</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="strokeColor">@color/accent_enable</item>
+        <item name="android:textColor">@color/accent_enable</item>
+        <!--<item name="android:textSize">18sp</item>-->
     </style>
 
     <style name="ButtonStyle.Primary">
-        <item name="strokeColor">@color/colorPrimary</item>
-        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="strokeColor">@color/primary_enable</item>
+        <item name="android:textColor">@color/primary_enable</item>
         <item name="rippleColor">@color/colorPrimaryRipple</item>
     </style>
 
@@ -40,6 +44,11 @@
         <item name="android:layout_marginBottom">@dimen/button_default_margin</item>
         <item name="android:layout_marginStart">@dimen/button_default_margin</item>
         <item name="android:layout_marginEnd">@dimen/button_default_margin</item>
+    </style>
+
+    <style name="TextInputStyle" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">24sp</item>
     </style>
 
 </resources>

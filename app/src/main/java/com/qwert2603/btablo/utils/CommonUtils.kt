@@ -4,9 +4,15 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
 import androidx.annotation.IntRange
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
 import com.qwert2603.andrlib.util.LogUtils
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.BiFunction
+import io.reactivex.functions.Function3
 import kotlin.random.Random
 
 fun EditText.doOnTextChange(action: (String) -> Unit) {
@@ -25,6 +31,10 @@ fun EditText.doOnTextChange(action: (String) -> Unit) {
 
 fun String.toIntOrZero(): Int = toIntOrNull() ?: 0
 
+fun Int.toStringZeroToEmpty() = if (this != 0) toString() else ""
+
+
+fun EditText.doOnTextChangeInt(action: (Int) -> Unit) = doOnTextChange { action(it.toIntOrZero()) }
 
 fun <T> Single<T>.cacheIfSuccess(name: String = Random.nextInt(1000000).toString()) = CachingSingle(this, name)
 
@@ -90,3 +100,18 @@ fun Int.digitAt(digit: Int): Int {
 
 fun Int.convertToByte() = this.toByte()
 fun String.convertToBytes() = this.toByteArray()
+
+
+fun <T, U> makePair() = BiFunction { t: T, u: U -> Pair(t, u) }
+fun <T, U> firstOfTwo() = BiFunction { t: T, _: U -> t }
+fun <T, U> secondOfTwo() = BiFunction { _: T, u: U -> u }
+fun <T, U, V> makeTriple() = Function3 { t: T, u: U, v: V -> Triple(t, u, v) }
+
+fun Disposable.disposeOnDestroy(lifecycleOwner: LifecycleOwner) {
+    lifecycleOwner.lifecycle.addObserver(object : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        fun on() {
+            this@disposeOnDestroy.dispose()
+        }
+    })
+}

@@ -23,7 +23,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/minutes_EditText"
-                style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                style="@style/TextInputStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_minutes"
@@ -31,6 +31,7 @@
                 android:inputType="number"
                 android:maxLength="2"
                 android:selectAllOnFocus="true"
+                android:textColor="@android:color/black"
                 tools:text="10" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -44,7 +45,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/seconds_EditText"
-                style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+                style="@style/TextInputStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_seconds"
@@ -52,12 +53,15 @@
                 android:inputType="number"
                 android:maxLength="2"
                 android:selectAllOnFocus="true"
+                android:textColor="@android:color/black"
                 tools:text="18" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
 
-    <include layout="@layout/include_buttons_start_stop" />
+    <include
+        android:id="@+id/time_startStop"
+        layout="@layout/include_buttons_start_stop" />
 
 </LinearLayout>

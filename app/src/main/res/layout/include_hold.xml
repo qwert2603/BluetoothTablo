@@ -15,12 +15,12 @@
         android:layout_height="wrap_content"
         android:layout_weight="1" />
 
-    <include
+    <com.qwert2603.btablo.utils.TimeoutsView
         android:id="@+id/timeouts1"
-        layout="@layout/include_timeouts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="6dp" />
+        android:layout_margin="4dp"
+        android:padding="4dp" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -58,12 +58,12 @@
 
     </LinearLayout>
 
-    <include
+    <com.qwert2603.btablo.utils.TimeoutsView
         android:id="@+id/timeouts2"
-        layout="@layout/include_timeouts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="6dp" />
+        android:layout_margin="4dp"
+        android:padding="4dp" />
 
     <include
         android:id="@+id/fouls2"

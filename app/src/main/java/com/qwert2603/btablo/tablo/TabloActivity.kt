@@ -1,49 +1,257 @@
 package com.qwert2603.btablo.tablo
 
+import android.content.Context
 import android.os.Bundle
 import android.text.Html
-import com.jakewharton.rxbinding2.view.RxView
-import com.jakewharton.rxbinding2.widget.RxTextView
-import com.qwert2603.andrlib.base.mvi.ViewAction
-import com.qwert2603.andrlib.util.setVisible
+import android.view.inputmethod.InputMethodManager
+import android.widget.Button
+import android.widget.EditText
 import com.qwert2603.btablo.BuildConfig
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.di.DIHolder
-import com.qwert2603.btablo.model.BluetoothConnectionException
-import com.qwert2603.btablo.model.BluetoothDeniedException
-import com.qwert2603.btablo.model.TabloNotFoundException
-import com.qwert2603.btablo.model.WrongChecksumException
-import com.qwert2603.btablo.utils.BluetoothActivity
-import com.qwert2603.btablo.utils.doOnTextChange
-import com.qwert2603.btablo.utils.toIntOrZero
-import com.qwert2603.permesso.exception.PermissionDeniedException
-import io.reactivex.Observable
+import com.qwert2603.btablo.utils.*
 import kotlinx.android.synthetic.main.activity_tablo.*
+import kotlinx.android.synthetic.main.include_attack.*
+import kotlinx.android.synthetic.main.include_buttons_plus_minus.view.*
+import kotlinx.android.synthetic.main.include_buttons_start_stop.view.*
+import kotlinx.android.synthetic.main.include_fouls.view.*
+import kotlinx.android.synthetic.main.include_hold.*
 import kotlinx.android.synthetic.main.include_points.*
 import kotlinx.android.synthetic.main.include_teams.*
+import kotlinx.android.synthetic.main.include_time.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TabloActivity : BluetoothActivity<TabloViewState, TabloView, TabloPresenter>(), TabloView {
-
-    override fun createPresenter() = TabloPresenter()
+class TabloActivity : BluetoothActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tablo)
 
-        val settingsRepo = DIHolder.settingsRepo
+        setAboutText()
 
-        team1_EditText.setText(settingsRepo.team1)
-        team2_EditText.setText(settingsRepo.team2)
-        points1_EditText.setText(settingsRepo.points1.toString())
-        points2_EditText.setText(settingsRepo.points2.toString())
+        val vsObservableField: ObservableField<TabloViewState> = DIHolder.settingsRepo.vs
 
-        team1_EditText.doOnTextChange { settingsRepo.team1 = it }
-        team2_EditText.doOnTextChange { settingsRepo.team2 = it }
-        points1_EditText.doOnTextChange { settingsRepo.points1 = it.toIntOrZero() }
-        points2_EditText.doOnTextChange { settingsRepo.points2 = it.toIntOrZero() }
+        vsObservableField.changes
+            .observeOn(DIHolder.uiSchedulerProvider.ui)
+            .subscribe { render(it) }
+            .disposeOnDestroy(this)
 
+        DIHolder.settingsRepo.isStarted
+            .observeOn(DIHolder.uiSchedulerProvider.ui)
+            .subscribe {
+                time_startStop.start_Button.isEnabled = !it
+                time_startStop.stop_Button.isEnabled = it
+
+                minutes_EditText.isEnabled = !it
+                seconds_EditText.isEnabled = !it
+            }
+            .disposeOnDestroy(this)
+
+        DIHolder.settingsRepo.isAttackStarted
+            .observeOn(DIHolder.uiSchedulerProvider.ui)
+            .subscribe {
+                attack_StartStop.start_Button.isEnabled = !it
+                attack_StartStop.stop_Button.isEnabled = it
+
+                attackSeconds_EditText.isEnabled = !it
+            }
+            .disposeOnDestroy(this)
+
+        setListeners(vsObservableField)
+    }
+
+//    override fun signal1Clicks(): Observable<Any> = RxView.clicks(signal1_Button)
+//    override fun signal2Clicks(): Observable<Any> = RxView.clicks(signal2_Button)
+
+    private fun render(vs: TabloViewState) {
+
+        team1_EditText.setTextQQ(vs.team1)
+        team2_EditText.setTextQQ(vs.team2)
+
+        minutes_EditText.setTextFromInt(vs.minutes)
+        seconds_EditText.setTextFromInt(vs.seconds)
+
+        points1_EditText.setTextFromInt(vs.points1)
+        points2_EditText.setTextFromInt(vs.points2)
+        period_EditText.setTextFromInt(vs.period)
+
+        points1_PlusMinus.plus_Button.isEnabled = vs.isPoints1PlusEnabled()
+        points1_PlusMinus.minus_Button.isEnabled = vs.isPoints1MinusEnabled()
+
+        points2_PlusMinus.plus_Button.isEnabled = vs.isPoints2PlusEnabled()
+        points2_PlusMinus.minus_Button.isEnabled = vs.isPoints2MinusEnabled()
+
+        period_PlusMinus.plus_Button.isEnabled = vs.isPeriodPlusEnabled()
+        period_PlusMinus.minus_Button.isEnabled = vs.isPeriodMinusEnabled()
+
+        fouls1.fouls_EditText.setTextFromInt(vs.fouls1)
+        fouls2.fouls_EditText.setTextFromInt(vs.fouls2)
+
+        fouls1.fouls_PlusMinus.plus_Button.isEnabled = vs.isFouls1PlusEnabled()
+        fouls1.fouls_PlusMinus.minus_Button.isEnabled = vs.isFouls1MinusEnabled()
+
+        fouls2.fouls_PlusMinus.plus_Button.isEnabled = vs.isFouls2PlusEnabled()
+        fouls2.fouls_PlusMinus.minus_Button.isEnabled = vs.isFouls2MinusEnabled()
+
+        timeouts1.timeouts = vs.timeouts1
+        timeouts2.timeouts = vs.timeouts2
+
+        hold_RadioGroup.check(
+            when (vs.holdIsTeam2) {
+                false -> R.id.hold1_RadioButton
+                true -> R.id.hold2_RadioButton
+            }
+        )
+
+        attackSeconds_EditText.setTextFromInt(vs.attackSeconds)
+
+//        sendingState_LinearLayout.setVisible(vs.sendingState != null)
+//
+//        if (vs.sendingState != null) {
+//            sending_ProgressBar.setVisible(vs.sendingState == SendingState.Sending)
+//            sendingState_TextView.text = getString(
+//                when (vs.sendingState) {
+//                    SendingState.Sending -> R.string.sending_state_sending
+//                    is SendingState.Error -> when (vs.sendingState.t) {
+//                        is PermissionDeniedException -> R.string.sending_state_error_no_geo_permission
+//                        is BluetoothDeniedException -> R.string.sending_state_error_bluetooth_denied
+//                        is TabloNotFoundException -> R.string.sending_state_error_tablo_not_found
+//                        is BluetoothConnectionException -> R.string.sending_state_error_connection_exception
+//                        is WrongChecksumException -> R.string.sending_state_error_wrong_checksum
+//                        else -> R.string.sending_state_error
+//                    }
+//                    SendingState.Success -> R.string.sending_state_success
+//                }
+//            )
+//            @Suppress("DEPRECATION")
+//            sendingState_TextView.setTextColor(
+//                resources.getColor(
+//                    when (vs.sendingState) {
+//                        SendingState.Sending -> R.color.sending_state_sending
+//                        is SendingState.Error -> R.color.sending_state_error
+//                        SendingState.Success -> R.color.sending_state_success
+//                    }
+//                )
+//            )
+//        }
+    }
+
+    private fun setListeners(vsObservableField: ObservableField<TabloViewState>) {
+        reset_Button.setOnClickListener {
+            vsObservableField.updateField { TabloViewState.DEFAULT }
+            DIHolder.settingsRepo.sendAll()
+        }
+
+        team1_EditText.doOnTextChange { vsObservableField.updateField { vs -> vs.copy(team1 = it) } }
+        team2_EditText.doOnTextChange { vsObservableField.updateField { vs -> vs.copy(team2 = it) } }
+
+        sendTeams_Button.setOnClickListener { DIHolder.settingsRepo.sendTeams() }
+
+        minutes_EditText.doOnTextChangeInt { vsObservableField.updateField { vs -> vs.copy(minutes = it) } }
+        seconds_EditText.doOnTextChangeInt { vsObservableField.updateField { vs -> vs.copy(seconds = it) } }
+
+        time_startStop.start_Button.setOnClickListener {
+            DIHolder.settingsRepo.setStarted(true)
+            hideKeyboard()
+        }
+        time_startStop.stop_Button.setOnClickListener { DIHolder.settingsRepo.setStarted(false) }
+
+        fun updateIntChanges(
+            editText: EditText,
+            plusButton: Button,
+            minusButton: Button,
+            getter: TabloViewState.() -> Int,
+            updater: TabloViewState.(Int) -> TabloViewState,
+            maxValue: Int,
+            minvalue: Int = 0
+        ) {
+            editText.doOnTextChangeInt { value -> vsObservableField.updateField { vs -> updater(vs, value) } }
+            plusButton.setOnClickListener {
+                vsObservableField.updateField { vs ->
+                    val newValue = vs.getter().inc().coerceAtMost(maxValue)
+                    vs.updater(newValue)
+                }
+            }
+            minusButton.setOnClickListener {
+                vsObservableField.updateField { vs ->
+                    val newValue = vs.getter().dec().coerceAtLeast(minvalue)
+                    vs.updater(newValue)
+                }
+            }
+        }
+
+        updateIntChanges(
+            editText = points1_EditText,
+            plusButton = points1_PlusMinus.plus_Button,
+            minusButton = points1_PlusMinus.minus_Button,
+            getter = { points1 },
+            updater = { copy(points1 = it) },
+            maxValue = TabloViewState.MAX_POINTS
+        )
+        updateIntChanges(
+            editText = points2_EditText,
+            plusButton = points2_PlusMinus.plus_Button,
+            minusButton = points2_PlusMinus.minus_Button,
+            getter = { points2 },
+            updater = { copy(points2 = it) },
+            maxValue = TabloViewState.MAX_POINTS
+        )
+        updateIntChanges(
+            editText = period_EditText,
+            plusButton = period_PlusMinus.plus_Button,
+            minusButton = period_PlusMinus.minus_Button,
+            getter = { period },
+            updater = { copy(period = it) },
+            maxValue = TabloViewState.MAX_PERIOD
+        )
+        updateIntChanges(
+            editText = fouls1.fouls_EditText,
+            plusButton = fouls1.fouls_PlusMinus.plus_Button,
+            minusButton = fouls1.fouls_PlusMinus.minus_Button,
+            getter = { fouls1 },
+            updater = { copy(fouls1 = it) },
+            maxValue = TabloViewState.MAX_FOULS
+        )
+        updateIntChanges(
+            editText = fouls2.fouls_EditText,
+            plusButton = fouls2.fouls_PlusMinus.plus_Button,
+            minusButton = fouls2.fouls_PlusMinus.minus_Button,
+            getter = { fouls2 },
+            updater = { copy(fouls2 = it) },
+            maxValue = TabloViewState.MAX_FOULS
+        )
+
+        timeouts1.onTimeoutsChangesFromUser = { vsObservableField.updateField { vs -> vs.copy(timeouts1 = it) } }
+        timeouts2.onTimeoutsChangesFromUser = { vsObservableField.updateField { vs -> vs.copy(timeouts2 = it) } }
+
+        hold_RadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            vsObservableField.updateField { vs -> vs.copy(holdIsTeam2 = checkedId == R.id.hold2_RadioButton) }
+        }
+
+        attackSeconds_EditText.doOnTextChangeInt { vsObservableField.updateField { vs -> vs.copy(attackSeconds = it) } }
+
+        attack_StartStop.start_Button.setOnClickListener {
+            DIHolder.settingsRepo.setAttackStarted(true)
+            hideKeyboard()
+        }
+        attack_StartStop.stop_Button.setOnClickListener { DIHolder.settingsRepo.setAttackStarted(false) }
+
+        sec24_Button.setOnClickListener {
+            vsObservableField.updateField { vs -> vs.copy(attackSeconds = 24) }
+            DIHolder.settingsRepo.setAttackStarted(false)
+        }
+        sec14_Button.setOnClickListener {
+            vsObservableField.updateField { vs -> vs.copy(attackSeconds = 14) }
+            DIHolder.settingsRepo.setAttackStarted(false)
+        }
+
+        sendAll_Button.setOnClickListener {
+            DIHolder.settingsRepo.sendAll()
+        }
+    }
+
+    private fun setAboutText() {
         @Suppress("DEPRECATION")
         about_TextView.text = Html.fromHtml(
             getString(
@@ -56,55 +264,28 @@ class TabloActivity : BluetoothActivity<TabloViewState, TabloView, TabloPresente
         )
     }
 
-    override fun sendClicks(): Observable<Any> = RxView.clicks(sendAll_Button)
+    private fun hideKeyboard() {
+        tablo_CoordinatorLayout.requestFocus()
 
-    override fun anyFieldChanged(): Observable<Any> = Observable.merge(
-        listOf(
-            RxTextView.textChanges(team1_EditText),
-            RxTextView.textChanges(team2_EditText),
-            RxTextView.textChanges(points1_EditText),
-            RxTextView.textChanges(points2_EditText)
-        )
-            .map { it.skipInitialValue() }
-    )
-
-    override fun render(vs: TabloViewState) {
-        super.render(vs)
-
-        sendingState_LinearLayout.setVisible(vs.sendingState != null)
-
-        if (vs.sendingState != null) {
-            sending_ProgressBar.setVisible(vs.sendingState == SendingState.Sending)
-            sendingState_TextView.text = getString(
-                when (vs.sendingState) {
-                    SendingState.Sending -> R.string.sending_state_sending
-                    is SendingState.Error -> when (vs.sendingState.t) {
-                        is PermissionDeniedException -> R.string.sending_state_error_no_geo_permission
-                        is BluetoothDeniedException -> R.string.sending_state_error_bluetooth_denied
-                        is TabloNotFoundException -> R.string.sending_state_error_tablo_not_found
-                        is BluetoothConnectionException -> R.string.sending_state_error_connection_exception
-                        is WrongChecksumException -> R.string.sending_state_error_wrong_checksum
-                        else -> R.string.sending_state_error
-                    }
-                    SendingState.Success -> R.string.sending_state_success
-                }
-            )
-            @Suppress("DEPRECATION")
-            sendingState_TextView.setTextColor(
-                resources.getColor(
-                    when (vs.sendingState) {
-                        SendingState.Sending -> R.color.sending_state_sending
-                        is SendingState.Error -> R.color.sending_state_error
-                        SendingState.Success -> R.color.sending_state_success
-                    }
-                )
-            )
-        }
-
-        hasUnsentChanges_TextView.setVisible(vs.hasUnsentChanges)
+        val currentFocus = currentFocus ?: return
+        val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(currentFocus.windowToken, 0)
     }
 
-    override fun executeAction(va: ViewAction) {
-        // nth.
+    companion object {
+
+        private fun EditText.setTextQQ(text: String) {
+            if (text != this.text.toString()) {
+                this.setText(text)
+                this.setSelection(text.length)
+            }
+        }
+
+        private fun EditText.setTextFromInt(i: Int) {
+            this.setTextQQ(i.toString())
+            if (this.isEnabled && i == 0) {
+                this.setSelection(0, 1)
+            }
+        }
     }
 }

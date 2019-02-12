@@ -11,7 +11,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/fouls_EditText"
-            style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
+            style="@style/TextInputStyle"
             tools:text="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,6 +23,7 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <include layout="@layout/include_buttons_plus_minus" />
+    <include layout="@layout/include_buttons_plus_minus"
+        android:id="@+id/fouls_PlusMinus"/>
 
 </LinearLayout>

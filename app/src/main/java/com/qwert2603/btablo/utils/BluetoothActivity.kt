@@ -2,12 +2,10 @@ package com.qwert2603.btablo.utils
 
 import android.content.Intent
 import android.os.Bundle
-import com.qwert2603.andrlib.base.mvi.BaseActivity
-import com.qwert2603.andrlib.base.mvi.BasePresenter
-import com.qwert2603.andrlib.base.mvi.BaseView
+import androidx.appcompat.app.AppCompatActivity
 import com.qwert2603.btablo.di.DIHolder
 
-abstract class BluetoothActivity<VS : Any, V : BaseView<VS>, P : BasePresenter<V, VS>> : BaseActivity<VS, V, P>() {
+abstract class BluetoothActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
