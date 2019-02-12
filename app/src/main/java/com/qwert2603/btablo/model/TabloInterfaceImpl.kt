@@ -1,5 +1,6 @@
 package com.qwert2603.btablo.model
 
+import com.qwert2603.andrlib.util.LogUtils
 import com.qwert2603.btablo.utils.convertToByte
 import com.qwert2603.btablo.utils.convertToBytes
 import com.qwert2603.btablo.utils.digitAt
@@ -67,7 +68,7 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
         sendMessage(
             TabloConst.Address.ADDR_DIG,
             TabloConst.Command.CMD_HANDLING,
-            byteArrayOf(if (isTeam2) TabloConst.HOLDING_TEAM1 else TabloConst.HOLDING_TEAM2)
+            byteArrayOf(if (isTeam2) TabloConst.HOLDING_TEAM2 else TabloConst.HOLDING_TEAM1)
         )
 
     override fun setSignal1(isOn: Boolean): Completable =
@@ -85,9 +86,19 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
     private fun sendMessage(address: TabloConst.Address, command: TabloConst.Command, text: ByteArray): Completable =
         Single
             .fromCallable {
-                byteArrayOf(TabloConst.START_BYTE, address.value, command.value)
-                    .plus(text)
-                    .plus(TabloConst.STOP_BYTE)
+                if (TabloConst.TEST_MODE) {
+                    "_${address}_${command}_${String(text)}_".toByteArray()
+                } else {
+                    byteArrayOf(TabloConst.START_BYTE, address.value, command.value)
+                        .plus(text)
+                        .plus(TabloConst.STOP_BYTE)
+                }
             }
-            .flatMapCompletable { bluetoothRepo.sendData(command, it) }
+            .flatMapCompletable {
+                if (TabloConst.TEST_MODE) {
+                    Completable.fromAction { LogUtils.d("sendMessage ${String(it)}") }
+                } else {
+                    bluetoothRepo.sendData(command, it)
+                }
+            }
 }

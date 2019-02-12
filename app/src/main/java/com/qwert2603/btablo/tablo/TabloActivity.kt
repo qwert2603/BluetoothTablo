@@ -73,9 +73,6 @@ class TabloActivity : BluetoothActivity() {
         setListeners(vsObservableField)
     }
 
-//    override fun signal1Clicks(): Observable<Any> = RxView.clicks(signal1_Button)
-//    override fun signal2Clicks(): Observable<Any> = RxView.clicks(signal2_Button)
-
     private fun render(vs: TabloViewState) {
 
         LogUtils.d { "TabloActivity render $vs" }
@@ -111,12 +108,7 @@ class TabloActivity : BluetoothActivity() {
         timeouts1.timeouts = vs.timeouts1
         timeouts2.timeouts = vs.timeouts2
 
-        hold_RadioGroup.check(
-            when (vs.holdIsTeam2) {
-                false -> R.id.hold1_RadioButton
-                true -> R.id.hold2_RadioButton
-            }
-        )
+        holdView.isTeam2 = vs.holdIsTeam2
 
         attackSeconds_EditText.setTextFromInt(vs.attackSeconds)
     }
@@ -156,8 +148,10 @@ class TabloActivity : BluetoothActivity() {
 
     private fun setListeners(vsObservableField: ObservableField<TabloViewState>) {
         reset_Button.setOnClickListener {
+            DIHolder.settingsRepo.setStarted(false)
+            DIHolder.settingsRepo.setAttackStarted(false)
+            DIHolder.settingsRepo.prepareForSendAll()
             vsObservableField.updateField { TabloViewState.DEFAULT }
-            DIHolder.settingsRepo.sendAll()
         }
 
         team1_EditText.doOnTextChange { vsObservableField.updateField { vs -> vs.copy(team1 = it) } }
@@ -242,9 +236,7 @@ class TabloActivity : BluetoothActivity() {
         timeouts1.onTimeoutsChangesFromUser = { vsObservableField.updateField { vs -> vs.copy(timeouts1 = it) } }
         timeouts2.onTimeoutsChangesFromUser = { vsObservableField.updateField { vs -> vs.copy(timeouts2 = it) } }
 
-        hold_RadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            vsObservableField.updateField { vs -> vs.copy(holdIsTeam2 = checkedId == R.id.hold2_RadioButton) }
-        }
+        holdView.onChangesFromUser = { vsObservableField.updateField { vs -> vs.copy(holdIsTeam2 = it) } }
 
         attackSeconds_EditText.doOnTextChangeInt { vsObservableField.updateField { vs -> vs.copy(attackSeconds = it) } }
 

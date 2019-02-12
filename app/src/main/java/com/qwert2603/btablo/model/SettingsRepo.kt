@@ -3,6 +3,7 @@ package com.qwert2603.btablo.model
 import android.annotation.SuppressLint
 import android.preference.PreferenceManager
 import com.google.gson.Gson
+import com.qwert2603.andrlib.util.renderIfChangedEqual
 import com.qwert2603.btablo.di.DIHolder
 import com.qwert2603.btablo.tablo.SendingState
 import com.qwert2603.btablo.tablo.TabloViewState
@@ -26,10 +27,34 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
         defaultValue = TabloViewState.DEFAULT
     )
 
-    private val stateHolder = object : StateHolderImpl<TabloViewState>() {
+    private val stateHolder = object : StateHolderImpl<TabloViewState>(vs.field) {
         override fun render(vs: TabloViewState) {
             super.render(vs)
-            //todo
+
+            renderIfChangedEqual({ team1 }) { tabloInterface.setTeam1Name(it).makeSend() }
+            renderIfChangedEqual({ team2 }) { tabloInterface.setTeam2Name(it).makeSend() }
+
+            renderIfChangedEqual({ minutes to seconds }) { (minutes, seconds) ->
+                tabloInterface.setTime(minutes, seconds).makeSend()
+            }
+
+            renderIfChangedEqual({ points1 to points2 }) { (points1, points2) ->
+                tabloInterface.setScore(points1, points2).makeSend()
+            }
+
+            renderIfChangedEqual({ period }) { tabloInterface.setPeriod(it).makeSend() }
+
+            renderIfChangedEqual({ fouls1 to fouls2 }) { (fouls1, fouls2) ->
+                tabloInterface.setFouls(fouls1, fouls2).makeSend()
+            }
+
+            renderIfChangedEqual({ timeouts1 to timeouts2 }) { (timeouts1, timeouts2) ->
+                tabloInterface.setTimeouts(timeouts1, timeouts2).makeSend()
+            }
+
+            renderIfChangedEqual({ holdIsTeam2 }) { tabloInterface.setHolding(it).makeSend() }
+
+            renderIfChangedEqual({ attackSeconds }) { tabloInterface.setTimeAttack(it, false).makeSend() }
         }
     }
 
@@ -89,7 +114,9 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
                 }
             }
 
-        vs.changes.subscribe { stateHolder.render(it) }
+        vs.changes
+            .skip(1)
+            .subscribe { stateHolder.render(it) }
 
         messagesToSend
             .concatMap { completable ->
@@ -103,15 +130,17 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
     }
 
     fun sendAll() {
-        _isStarted.onNext(false)
-        _isAttackStarted.onNext(false)
         stateHolder.renderAll()
+    }
+
+    fun prepareForSendAll() {
+        stateHolder.resetPrevViewState()
     }
 
     fun sendTeams() {
         val tabloViewState = vs.field
-        makeSend(tabloInterface.setTeam1Name(tabloViewState.team1))
-        makeSend(tabloInterface.setTeam2Name(tabloViewState.team2))
+        tabloInterface.setTeam1Name(tabloViewState.team1).makeSend()
+        tabloInterface.setTeam2Name(tabloViewState.team2).makeSend()
     }
 
     fun setStarted(started: Boolean) {
@@ -122,7 +151,7 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
         _isAttackStarted.onNext(attackStarted)
     }
 
-    private fun makeSend(completable: Completable) {
-        messagesToSend.onNext(completable)
+    private fun Completable.makeSend() {
+        messagesToSend.onNext(this)
     }
 }

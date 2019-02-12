@@ -9,6 +9,7 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.qwert2603.andrlib.util.LogUtils
+import com.qwert2603.btablo.model.TabloConst
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
@@ -92,13 +93,19 @@ fun noThrow(action: () -> Unit) {
 @IntRange(from = 0, to = 9)
 fun Int.digitAt(digit: Int): Int {
     var divider = 1
-    for (i in 0..digit) {
+    for (i in 0 until digit) {
         divider *= 10
     }
     return this / divider % 10
 }
 
-fun Int.convertToByte() = this.toByte()
+fun Int.convertToByte(): Byte =
+    if (TabloConst.TEST_MODE) {
+        (this.toByte() + '0'.toByte()).toByte()
+    } else {
+        this.toByte()
+    }
+
 fun String.convertToBytes() = this.toByteArray()
 
 

@@ -4,6 +4,8 @@ import com.qwert2603.btablo.utils.convertToByte
 
 object TabloConst {
 
+    const val TEST_MODE = true
+
     enum class Address(val value: Byte) {
         ADDR0(0.convertToByte()), //общий адрес
         ADDR_24SEC(1.convertToByte()),  //адрес табло 24 сек (у обоих один адрес)

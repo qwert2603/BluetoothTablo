@@ -3,13 +3,20 @@ package com.qwert2603.btablo.utils
 import androidx.annotation.CallSuper
 import com.qwert2603.andrlib.util.StateHolder
 
-abstract class StateHolderImpl<VS : Any> : StateHolder<VS> {
+abstract class StateHolderImpl<VS : Any>(initialViewState: VS? = null) : StateHolder<VS> {
 
     private var everRendered = false
 
-    override var prevViewState: VS? = null
+    final override var prevViewState: VS? = null
 
-    override lateinit var currentViewState: VS
+    final override lateinit var currentViewState: VS
+
+    init {
+        if (initialViewState != null) {
+            everRendered = true
+            currentViewState = initialViewState
+        }
+    }
 
     @CallSuper
     open fun render(vs: VS) {
@@ -22,8 +29,12 @@ abstract class StateHolderImpl<VS : Any> : StateHolder<VS> {
     }
 
     fun renderAll() {
+        resetPrevViewState()
+        render(currentViewState)
+    }
+
+    fun resetPrevViewState() {
         everRendered = false
         prevViewState = null
-        render(currentViewState)
     }
 }

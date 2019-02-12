@@ -1,16 +1,15 @@
 package com.qwert2603.btablo.utils
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.os.Build
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.widget.CheckBox
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.children
-import com.qwert2603.andrlib.util.color
 import com.qwert2603.btablo.R
 
+@Suppress("DEPRECATION")
 class TimeoutsView(context: Context?, attrs: AttributeSet?) : LinearLayoutCompat(context, attrs) {
 
     companion object {
@@ -45,7 +44,7 @@ class TimeoutsView(context: Context?, attrs: AttributeSet?) : LinearLayoutCompat
             checkBox.isClickable = false
             checkBox.isFocusable = false
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                checkBox.buttonTintList = ColorStateList.valueOf(resources.color(R.color.colorAccent))
+                checkBox.buttonTintList = resources.getColorStateList(R.color.accent_check_button)
             }
             addView(checkBox)
         }
