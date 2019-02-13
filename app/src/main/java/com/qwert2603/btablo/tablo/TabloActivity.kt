@@ -31,6 +31,8 @@ import java.util.*
 
 class TabloActivity : BluetoothActivity() {
 
+    private var isRendering = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tablo)
@@ -75,6 +77,8 @@ class TabloActivity : BluetoothActivity() {
 
     private fun render(vs: TabloViewState) {
 
+        isRendering = true
+
         LogUtils.d { "TabloActivity render $vs" }
 
         team1_EditText.setTextQQ(vs.team1)
@@ -111,6 +115,8 @@ class TabloActivity : BluetoothActivity() {
         holdView.isTeam2 = vs.holdIsTeam2
 
         attackSeconds_EditText.setTextFromInt(vs.attackSeconds)
+
+        isRendering = false
     }
 
     private fun renderSendingState(sendingState: SendingState) {
@@ -154,13 +160,13 @@ class TabloActivity : BluetoothActivity() {
             vsObservableField.updateField { TabloViewState.DEFAULT }
         }
 
-        team1_EditText.doOnTextChange { vsObservableField.updateField { vs -> vs.copy(team1 = it) } }
-        team2_EditText.doOnTextChange { vsObservableField.updateField { vs -> vs.copy(team2 = it) } }
+        team1_EditText.doOnTextChangeQQ { vsObservableField.updateField { vs -> vs.copy(team1 = it) } }
+        team2_EditText.doOnTextChangeQQ { vsObservableField.updateField { vs -> vs.copy(team2 = it) } }
 
         sendTeams_Button.setOnClickListener { DIHolder.settingsRepo.sendTeams() }
 
-        minutes_EditText.doOnTextChangeInt { vsObservableField.updateField { vs -> vs.copy(minutes = it) } }
-        seconds_EditText.doOnTextChangeInt { vsObservableField.updateField { vs -> vs.copy(seconds = it) } }
+        minutes_EditText.doOnTextChangeIntQQ { vsObservableField.updateField { vs -> vs.copy(minutes = it) } }
+        seconds_EditText.doOnTextChangeIntQQ { vsObservableField.updateField { vs -> vs.copy(seconds = it) } }
 
         time_startStop.start_Button.setOnClickListener {
             DIHolder.settingsRepo.setStarted(true)
@@ -177,7 +183,7 @@ class TabloActivity : BluetoothActivity() {
             maxValue: Int,
             minvalue: Int = 0
         ) {
-            editText.doOnTextChangeInt { value -> vsObservableField.updateField { vs -> updater(vs, value) } }
+            editText.doOnTextChangeIntQQ { value -> vsObservableField.updateField { vs -> updater(vs, value) } }
             plusButton.setOnClickListener {
                 vsObservableField.updateField { vs ->
                     val newValue = vs.getter().inc().coerceAtMost(maxValue)
@@ -238,7 +244,7 @@ class TabloActivity : BluetoothActivity() {
 
         holdView.onChangesFromUser = { vsObservableField.updateField { vs -> vs.copy(holdIsTeam2 = it) } }
 
-        attackSeconds_EditText.doOnTextChangeInt { vsObservableField.updateField { vs -> vs.copy(attackSeconds = it) } }
+        attackSeconds_EditText.doOnTextChangeIntQQ { vsObservableField.updateField { vs -> vs.copy(attackSeconds = it) } }
 
         attack_StartStop.start_Button.setOnClickListener {
             DIHolder.settingsRepo.setAttackStarted(true)
@@ -280,6 +286,16 @@ class TabloActivity : BluetoothActivity() {
         val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(currentFocus.windowToken, 0)
     }
+
+    private fun EditText.doOnTextChangeQQ(action: (String) -> Unit) {
+        this.doOnTextChange {
+            if (!isRendering) {
+                action(it)
+            }
+        }
+    }
+
+   private fun EditText.doOnTextChangeIntQQ(action: (Int) -> Unit) = doOnTextChangeQQ { action(it.toIntOrZero()) }
 
     companion object {
 
