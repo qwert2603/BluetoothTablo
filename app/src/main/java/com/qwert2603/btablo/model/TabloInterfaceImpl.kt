@@ -31,7 +31,7 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
                 seconds.digitAt(0).convertToByte(),
                 if (signal) TabloConst.SIGNAL_ON else TabloConst.SIGNAL_OFF
             )
-        )
+        ).also { LogUtils.d("TabloInterfaceImpl setTimeAttack $seconds $signal") }
 
     override fun setScore(points1: Int, points2: Int): Completable =
         sendMessage(

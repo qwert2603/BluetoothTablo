@@ -59,7 +59,7 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
 
             renderIfChangedEqual({ holdIsTeam2 }) { tabloInterface.setHolding(it).makeSend() }
 
-            renderIfChangedEqual({ attackSeconds }) { tabloInterface.setTimeAttack(it, false).makeSend() }
+            renderIfChangedEqual({ attackSeconds }) { tabloInterface.setTimeAttack(it, it == 0).makeSend() }
         }
     }
 
@@ -109,6 +109,7 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
                 }
             }
             .subscribe { i ->
+                // i == 0 -- when initial (0 seconds passed).
                 val vs = if (i > 0) {
                     vs.updateField { it.decAttackSecond() }
                 } else {
@@ -116,6 +117,9 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
                 }
                 if (vs.attackSeconds == 0) {
                     setAttackStarted(false)
+                    if (i > 0) {
+                        tabloInterface.setSignal1(true).makeSend()
+                    }
                 }
             }
 
@@ -161,6 +165,14 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
 
     fun setAttackStarted(attackStarted: Boolean) {
         _isAttackStarted.onNext(attackStarted)
+    }
+
+    fun setSignal1(enable: Boolean) {
+        tabloInterface.setSignal1(enable).makeSend()
+    }
+
+    fun setSignal2(enable: Boolean) {
+        tabloInterface.setSignal2(enable).makeSend()
     }
 
     private fun Completable.makeSend() {

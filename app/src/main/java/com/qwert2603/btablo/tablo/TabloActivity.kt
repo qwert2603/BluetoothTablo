@@ -252,6 +252,9 @@ class TabloActivity : BluetoothActivity() {
         }
         attack_StartStop.stop_Button.setOnClickListener { DIHolder.settingsRepo.setAttackStarted(false) }
 
+        signal1_Button.setOnClickListener { DIHolder.settingsRepo.setSignal1(true) }
+        signal2_Button.setOnClickListener { DIHolder.settingsRepo.setSignal2(true) }
+
         sec24_Button.setOnClickListener {
             vsObservableField.updateField { vs -> vs.copy(attackSeconds = 24) }
             DIHolder.settingsRepo.setAttackStarted(true)
@@ -295,7 +298,7 @@ class TabloActivity : BluetoothActivity() {
         }
     }
 
-   private fun EditText.doOnTextChangeIntQQ(action: (Int) -> Unit) = doOnTextChangeQQ { action(it.toIntOrZero()) }
+    private fun EditText.doOnTextChangeIntQQ(action: (Int) -> Unit) = doOnTextChangeQQ { action(it.toIntOrZero()) }
 
     companion object {
 
