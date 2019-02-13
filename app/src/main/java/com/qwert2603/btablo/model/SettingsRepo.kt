@@ -118,13 +118,20 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
             .skip(1)
             .subscribe { stateHolder.render(it) }
 
-        messagesToSend
-            .concatMap { completable ->
-                completable
-                    .toSingleDefault<SendingState>(SendingState.Success)
-                    .onErrorReturn { SendingState.Error(it) }
-                    .toObservable()
-                    .startWith(SendingState.Sending)
+        val resetSendingMessages = BehaviorSubject.createDefault(Unit)
+
+        resetSendingMessages
+            .switchMap {
+                messagesToSend
+                    .concatMap { completable ->
+                        completable
+                            .toSingleDefault<SendingState>(SendingState.Success)
+                            .onErrorReturn { SendingState.Error(it) }
+                            .toObservable()
+                            .startWith(SendingState.Sending)
+                    }
+                    .takeUntil { it is SendingState.Error }
+                    .doFinally { resetSendingMessages.onNext(Unit) }
             }
             .subscribe { _sendingState.onNext(it) }
     }
