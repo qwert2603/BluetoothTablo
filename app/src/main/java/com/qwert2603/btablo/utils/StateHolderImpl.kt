@@ -37,4 +37,6 @@ abstract class StateHolderImpl<VS : Any>(initialViewState: VS? = null) : StateHo
         everRendered = false
         prevViewState = null
     }
+
+    protected fun isFirstRendering() = prevViewState == null
 }

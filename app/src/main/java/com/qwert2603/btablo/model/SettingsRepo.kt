@@ -31,8 +31,13 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
         override fun render(vs: TabloViewState) {
             super.render(vs)
 
-            renderIfChangedEqual({ team1 }) { tabloInterface.setTeam1Name(it).makeSend() }
-            renderIfChangedEqual({ team2 }) { tabloInterface.setTeam2Name(it).makeSend() }
+//            renderIfChangedEqual({ team1 }) { tabloInterface.setTeam1Name(it).makeSend() }
+//            renderIfChangedEqual({ team2 }) { tabloInterface.setTeam2Name(it).makeSend() }
+
+            if (isFirstRendering()) {
+                tabloInterface.setTeam1Name(vs.team1).makeSend()
+                tabloInterface.setTeam2Name(vs.team2).makeSend()
+            }
 
             renderIfChangedEqual({ minutes to seconds }) { (minutes, seconds) ->
                 tabloInterface.setTime(minutes, seconds).makeSend()
