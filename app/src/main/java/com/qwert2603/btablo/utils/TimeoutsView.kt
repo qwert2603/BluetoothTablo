@@ -8,12 +8,13 @@ import android.widget.CheckBox
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.children
 import com.qwert2603.btablo.R
+import com.qwert2603.btablo.tablo.TabloViewState
 
 @Suppress("DEPRECATION")
 class TimeoutsView(context: Context?, attrs: AttributeSet?) : LinearLayoutCompat(context, attrs) {
 
     companion object {
-        const val MAX_TIMEOUTS = 3
+        const val MAX_TIMEOUTS = TabloViewState.MAX_TIMEOUTS
     }
 
     var timeouts: Int = 0
