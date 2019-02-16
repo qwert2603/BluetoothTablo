@@ -9,11 +9,13 @@ import java.util.concurrent.Executors
 
 class MessagesSender(private val socket: BluetoothSocket) {
 
-    data class Message(
+    class Message(
         val uuid: String,
-        val text: String,
+        val bytes: ByteArray,
         val onSend: (t: Throwable?) -> Unit
-    )
+    ) {
+        override fun toString() = "Message(uuid='$uuid', bytes=${Arrays.toString(bytes)}, onSend=$onSend)"
+    }
 
     private val messagesLock = Any()
 
@@ -60,12 +62,14 @@ class MessagesSender(private val socket: BluetoothSocket) {
                 socket.connect()
             }
 
-            LogUtils.d("MessagesSender doSendMessage write ${message.text}")
-            socket.outputStream.write("${message.text}\n".toByteArray())
+            LogUtils.d("MessagesSender doSendMessage write ${message.bytes.joinToString {
+                java.lang.String.format("%02x", it)
+            }}")
+            socket.outputStream.write(message.bytes)
             socket.outputStream.flush()
             LogUtils.d("MessagesSender doSendMessage flush")
 
-//                Thread.sleep(1000)
+//            Thread.sleep(1000)
 
             message.onSend(null)
         } catch (t: Throwable) {

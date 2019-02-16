@@ -8,9 +8,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.model.BluetoothRepoImpl
+import com.qwert2603.btablo.model.TabloConst
 import kotlinx.android.synthetic.main.activity_server.*
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import kotlin.concurrent.thread
 
 class ServerActivity : AppCompatActivity() {
@@ -37,7 +36,7 @@ class ServerActivity : AppCompatActivity() {
         )
 
         fun addText(text: String) {
-            textView.post { textView.text = "${textView.text}\n$text" }
+            textView.post { textView.text = "${textView.text}$text" }
         }
 
         thread {
@@ -45,17 +44,14 @@ class ServerActivity : AppCompatActivity() {
                 val socket = serverSocket.accept()
                 serverSocket.close()
 
-                addText("client: ${socket.remoteDevice.name}")
-
-                val bufferedReader = BufferedReader(InputStreamReader(socket.inputStream))
+                addText("client: ${socket.remoteDevice.name} ${socket.remoteDevice.address}\n")
 
                 while (true) {
-                    val line = bufferedReader.readLine()
-                    addText("in: $line")
-                    val checksum = line.hashCode().toString()
-                    socket.outputStream.write("$checksum\n".toByteArray())
-                    socket.outputStream.flush()
-                    addText("out: $checksum")
+                    val byte = socket.inputStream.read().toByte()
+                    addText(String.format("%02x", byte) + ' ')
+                    if (byte == TabloConst.STOP_BYTE) {
+                        addText("\n")
+                    }
                 }
             } catch (t: Throwable) {
                 addText("error: $t")

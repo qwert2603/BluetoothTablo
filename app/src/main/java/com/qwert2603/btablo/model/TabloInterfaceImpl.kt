@@ -6,6 +6,7 @@ import com.qwert2603.btablo.utils.convertToBytes
 import com.qwert2603.btablo.utils.digitAt
 import io.reactivex.Completable
 import io.reactivex.Single
+import kotlin.experimental.xor
 
 class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterface {
 
@@ -89,8 +90,10 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
                 if (TabloConst.TEST_MODE) {
                     "_${address}_${command}_${String(text)}_".toByteArray()
                 } else {
-                    byteArrayOf(TabloConst.START_BYTE, address.value, command.value)
-                        .plus(text)
+                    val message = byteArrayOf(address.value, command.value).plus(text)
+                    byteArrayOf(TabloConst.START_BYTE)
+                        .plus(message)
+                        .plus(message.checkSum())
                         .plus(TabloConst.STOP_BYTE)
                 }
             }
@@ -101,4 +104,17 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
                     bluetoothRepo.sendData(command, it)
                 }
             }
+
+    companion object {
+        private fun ByteArray.checkSum(): Byte {
+            var result: Byte = 0
+            this.forEach { byte ->
+                result = result xor byte
+            }
+            if (result == ':'.toByte() || result == 0x0D.toByte()) {
+                result = 0x55
+            }
+            return result
+        }
+    }
 }

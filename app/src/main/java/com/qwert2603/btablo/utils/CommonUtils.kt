@@ -106,7 +106,9 @@ fun Int.convertToByte(): Byte =
         this.toByte()
     }
 
-fun String.convertToBytes() = this.toByteArray()
+fun String.convertToBytes(): ByteArray = this
+    .map { it.toByte() }
+    .toByteArray()
 
 
 fun <T, U> makePair() = BiFunction { t: T, u: U -> Pair(t, u) }
