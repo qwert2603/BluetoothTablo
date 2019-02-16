@@ -166,7 +166,11 @@ class TabloActivity : BluetoothActivity() {
         sendTeams_Button.setOnClickListener { DIHolder.settingsRepo.sendTeams() }
 
         minutes_EditText.doOnTextChangeIntQQ { vsObservableField.updateField { vs -> vs.copy(minutes = it) } }
-        seconds_EditText.doOnTextChangeIntQQ { vsObservableField.updateField { vs -> vs.copy(seconds = it) } }
+        seconds_EditText.doOnTextChangeIntQQ {
+            vsObservableField.updateField { vs ->
+                vs.copy(seconds = it.takeIf { it <= TabloViewState.MAX_SECONDS } ?: 0)
+            }
+        }
 
         time_startStop.start_Button.setOnClickListener {
             DIHolder.settingsRepo.setStarted(true)
