@@ -6,8 +6,6 @@ import android.text.Html
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
-import com.qwert2603.andrlib.util.LogUtils
-import com.qwert2603.andrlib.util.color
 import com.qwert2603.btablo.BuildConfig
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.di.DIHolder
@@ -42,17 +40,17 @@ class TabloActivity : BluetoothActivity() {
         val vsObservableField: ObservableField<TabloViewState> = DIHolder.settingsRepo.vs
 
         vsObservableField.changes
-            .observeOn(DIHolder.uiSchedulerProvider.ui)
+            .observeOn(DIHolder.uiScheduler)
             .subscribe { render(it) }
             .disposeOnDestroy(this)
 
         DIHolder.settingsRepo.sendingState
-            .observeOn(DIHolder.uiSchedulerProvider.ui)
+            .observeOn(DIHolder.uiScheduler)
             .subscribe { renderSendingState(it) }
             .disposeOnDestroy(this)
 
         DIHolder.settingsRepo.isStarted
-            .observeOn(DIHolder.uiSchedulerProvider.ui)
+            .observeOn(DIHolder.uiScheduler)
             .subscribe {
                 time_startStop.start_Button.isEnabled = !it
                 time_startStop.stop_Button.isEnabled = it
@@ -63,7 +61,7 @@ class TabloActivity : BluetoothActivity() {
             .disposeOnDestroy(this)
 
         DIHolder.settingsRepo.isAttackStarted
-            .observeOn(DIHolder.uiSchedulerProvider.ui)
+            .observeOn(DIHolder.uiScheduler)
             .subscribe {
                 attack_StartStop.start_Button.isEnabled = !it
                 attack_StartStop.stop_Button.isEnabled = it
@@ -140,8 +138,9 @@ class TabloActivity : BluetoothActivity() {
                 SendingState.NotSent -> null!!
             }
         )
+        @Suppress("DEPRECATION")
         toolbar.setSubtitleTextColor(
-            resources.color(
+            resources.getColor(
                 when (sendingState) {
                     SendingState.Sending -> R.color.sending_state_sending
                     is SendingState.Error -> R.color.sending_state_error

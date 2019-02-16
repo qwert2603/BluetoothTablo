@@ -36,4 +36,6 @@ object TabloConst {
     val TIME_DOTS_OFF = 0x00.convertToByte()
     val HOLDING_TEAM1 = 0x00.convertToByte()
     val HOLDING_TEAM2 = 0x01.convertToByte()
+
+    const val SECONDS_PER_MINUTE = 60
 }

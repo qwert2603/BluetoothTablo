@@ -1,6 +1,6 @@
 package com.qwert2603.btablo.model
 
-import com.qwert2603.andrlib.util.LogUtils
+import com.qwert2603.btablo.utils.LogUtils
 import com.qwert2603.btablo.utils.convertToByte
 import com.qwert2603.btablo.utils.convertToBytes
 import com.qwert2603.btablo.utils.digitAt

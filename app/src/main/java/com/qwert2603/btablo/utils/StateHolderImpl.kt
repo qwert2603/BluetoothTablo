@@ -1,7 +1,6 @@
 package com.qwert2603.btablo.utils
 
 import androidx.annotation.CallSuper
-import com.qwert2603.andrlib.util.StateHolder
 
 abstract class StateHolderImpl<VS : Any>(initialViewState: VS? = null) : StateHolder<VS> {
 

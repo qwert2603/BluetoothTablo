@@ -3,13 +3,13 @@ package com.qwert2603.btablo.model
 import android.annotation.SuppressLint
 import android.preference.PreferenceManager
 import com.google.gson.Gson
-import com.qwert2603.andrlib.util.renderIfChangedEqual
 import com.qwert2603.btablo.di.DIHolder
 import com.qwert2603.btablo.tablo.SendingState
 import com.qwert2603.btablo.tablo.TabloViewState
 import com.qwert2603.btablo.utils.ObservableField
 import com.qwert2603.btablo.utils.PreferenceUtils
 import com.qwert2603.btablo.utils.StateHolderImpl
+import com.qwert2603.btablo.utils.renderIfChangedEqual
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject

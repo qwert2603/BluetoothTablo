@@ -1,6 +1,6 @@
 package com.qwert2603.btablo.tablo
 
-import com.qwert2603.andrlib.util.Const
+import com.qwert2603.btablo.model.TabloConst
 
 data class TabloViewState(
     val team1: String,
@@ -61,15 +61,15 @@ data class TabloViewState(
         )
     }
 
-    fun totalSeconds() = minutes * Const.SECONDS_PER_MINUTE + seconds
+    fun totalSeconds() = minutes * TabloConst.SECONDS_PER_MINUTE + seconds
 
     fun decSecond(): TabloViewState {
         val updatedTotalSeconds = totalSeconds()
             .minus(1)
             .coerceAtLeast(0)
         return copy(
-            minutes = updatedTotalSeconds / Const.SECONDS_PER_MINUTE,
-            seconds = updatedTotalSeconds % Const.SECONDS_PER_MINUTE
+            minutes = updatedTotalSeconds / TabloConst.SECONDS_PER_MINUTE,
+            seconds = updatedTotalSeconds % TabloConst.SECONDS_PER_MINUTE
         )
     }
 

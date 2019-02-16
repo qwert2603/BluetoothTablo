@@ -2,7 +2,7 @@ package com.qwert2603.btablo.model
 
 import android.bluetooth.BluetoothSocket
 import android.util.Log
-import com.qwert2603.andrlib.util.LogUtils
+import com.qwert2603.btablo.utils.LogUtils
 import com.qwert2603.btablo.utils.noThrow
 import java.util.*
 import java.util.concurrent.Executors
@@ -10,11 +10,10 @@ import java.util.concurrent.Executors
 class MessagesSender(private val socket: BluetoothSocket) {
 
     class Message(
-        val uuid: String,
         val bytes: ByteArray,
         val onSend: (t: Throwable?) -> Unit
     ) {
-        override fun toString() = "Message(uuid='$uuid', bytes=${Arrays.toString(bytes)}, onSend=$onSend)"
+        override fun toString() = "Message(bytes=${Arrays.toString(bytes)}, onSend=$onSend)"
     }
 
     private val messagesLock = Any()
@@ -26,8 +25,8 @@ class MessagesSender(private val socket: BluetoothSocket) {
     init {
         executorService.submit {
             while (true) {
-                Thread.sleep(10)
                 Thread.yield()
+                Thread.sleep(1)
                 Log.v("bluetooth_tablo", "MessagesSender executorService while (true)")
                 val message: Message = synchronized(messagesLock) { messages.pollFirst() } ?: continue
                 doSendMessage(message)

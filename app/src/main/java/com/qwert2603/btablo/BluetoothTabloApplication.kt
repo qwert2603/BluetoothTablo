@@ -1,8 +1,8 @@
 package com.qwert2603.btablo
 
 import android.app.Application
-import com.qwert2603.andrlib.util.LogUtils
 import com.qwert2603.btablo.di.DIHolder
+import com.qwert2603.btablo.utils.LogUtils
 import io.reactivex.plugins.RxJavaPlugins
 
 class BluetoothTabloApplication : Application() {

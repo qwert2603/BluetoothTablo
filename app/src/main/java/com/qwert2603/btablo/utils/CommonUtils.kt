@@ -8,7 +8,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-import com.qwert2603.andrlib.util.LogUtils
 import com.qwert2603.btablo.model.TabloConst
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable

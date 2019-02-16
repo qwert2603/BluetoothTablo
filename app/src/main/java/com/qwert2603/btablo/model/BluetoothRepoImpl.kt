@@ -12,12 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import com.qwert2603.andrlib.util.LogUtils
 import com.qwert2603.btablo.di.DIHolder
-import com.qwert2603.btablo.utils.CachingSingle
-import com.qwert2603.btablo.utils.Wrapper
-import com.qwert2603.btablo.utils.cacheIfSuccess
-import com.qwert2603.btablo.utils.wrap
+import com.qwert2603.btablo.utils.*
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
@@ -29,28 +25,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 class BluetoothRepoImpl : BluetoothRepo {
-
-    private class ValueToWait<T>(
-        @Volatile private var value: T
-    ) {
-        @Volatile
-        private var version: Long = 1
-
-        fun makeUpdate(nextValue: T) {
-            synchronized(this) {
-                value = nextValue
-                ++version
-            }
-        }
-
-        fun waitNext(): T {
-            val prevVersion = version
-
-            while (prevVersion == version) Thread.yield()
-
-            return value
-        }
-    }
 
     companion object {
         private const val REQUEST_ENABLE_BT = 2
@@ -115,7 +89,7 @@ class BluetoothRepoImpl : BluetoothRepo {
         .flatMap { enableBt() }
         .flatMap {
             getCurrentSocket()
-                .timeout(15, TimeUnit.SECONDS, sendScheduler, Single.error(TabloNotFoundException()))
+                .timeout(20, TimeUnit.SECONDS, sendScheduler, Single.error(TabloNotFoundException()))
         }
         .map { MessagesSender(it) }
         .cacheIfSuccess("cachingMessagesSender")
@@ -129,7 +103,7 @@ class BluetoothRepoImpl : BluetoothRepo {
         .flatMapCompletable { messagesSender ->
             Completable
                 .create { emitter ->
-                    val msg = MessagesSender.Message(uuid = command.name, bytes = bytes) { t: Throwable? ->
+                    val msg = MessagesSender.Message(bytes = bytes) { t: Throwable? ->
                         if (!emitter.isDisposed) {
                             if (t == null) {
                                 emitter.onComplete()
