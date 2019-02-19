@@ -28,11 +28,10 @@ class BluetoothRepoImpl : BluetoothRepo {
 
     companion object {
         private const val REQUEST_ENABLE_BT = 2
-        private const val ALCATEL_MAC = "3C:CB:7C:39:DA:95"
-        private const val REDMI_MAC = "E0:62:67:66:E7:D6"
-        private const val HC_MAC = "20:15:11:09:06:32"
         val BT_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
     }
+
+    private val tabloMacAddress by lazy { DIHolder.settingsRepo.macSettings.mac }
 
     override val activityCallbacks = object : BluetoothRepo.ActivityCallbacks {
         override fun onActivityCreate(activity: AppCompatActivity) {
@@ -77,7 +76,7 @@ class BluetoothRepoImpl : BluetoothRepo {
             val deviceName = device.name
             val deviceMacAddress = device.address
             LogUtils.d("BT device found $deviceName $deviceMacAddress")
-            if (deviceMacAddress in listOf(ALCATEL_MAC, REDMI_MAC, HC_MAC)) {
+            if (deviceMacAddress == tabloMacAddress) {
                 LogUtils.d("TabloRepo btFoundReceiver bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
 
                 val socket = device.createInsecureRfcommSocketToServiceRecord(BT_UUID)
