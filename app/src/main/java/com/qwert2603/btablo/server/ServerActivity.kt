@@ -47,8 +47,9 @@ class ServerActivity : AppCompatActivity() {
                 addText("client: ${socket.remoteDevice.name} ${socket.remoteDevice.address}\n")
 
                 while (true) {
-                    val byte = socket.inputStream.read().toByte()
-                    addText(String.format("%02x", byte) + ' ')
+                    val byte = socket.inputStream.read()
+//                    addText(String.format("%02x", byte) + ' ')
+                    addText("$byte ")
                     if (byte == TabloConst.STOP_BYTE) {
                         addText("\n")
                     }

@@ -10,7 +10,7 @@ import java.util.concurrent.Executors
 class MessagesSender(private val socket: BluetoothSocket) {
 
     class Message(
-        val bytes: ByteArray,
+        val bytes: IntArray,
         val onSend: (t: Throwable?) -> Unit
     ) {
         override fun toString() = "Message(bytes=${Arrays.toString(bytes)}, onSend=$onSend)"
@@ -64,7 +64,9 @@ class MessagesSender(private val socket: BluetoothSocket) {
             LogUtils.d("MessagesSender doSendMessage write ${message.bytes.joinToString {
                 java.lang.String.format("%02x", it)
             }}")
-            socket.outputStream.write(message.bytes)
+            message.bytes.forEach {
+                socket.outputStream.write(it)
+            }
             socket.outputStream.flush()
             LogUtils.d("MessagesSender doSendMessage flush")
 

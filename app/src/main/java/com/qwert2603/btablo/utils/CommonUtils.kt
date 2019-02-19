@@ -98,16 +98,23 @@ fun Int.digitAt(digit: Int): Int {
     return this / divider % 10
 }
 
-fun Int.convertToByte(): Byte =
+fun Int.convertToByte(): Int =
     if (TabloConst.TEST_MODE) {
-        (this.toByte() + '0'.toByte()).toByte()
+        (this.toByte() + '0'.toByte())
     } else {
-        this.toByte()
+        this % 0xFF
     }
 
-fun String.convertToBytes(): ByteArray = this
-    .map { it.toByte() }
-    .toByteArray()
+fun String.convertToBytes(): IntArray = this
+    .map { it.toInt() }
+    .map {
+        if (it in 'А'.toInt()..'Я'.toInt() || it in 'а'.toInt()..'я'.toInt()) {
+            it - TabloConst.OFFSET_RUSSIAN
+        } else {
+            it
+        }
+    }
+    .toIntArray()
 
 
 fun <T, U> makePair() = BiFunction { t: T, u: U -> Pair(t, u) }

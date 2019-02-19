@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.preference.PreferenceManager
 import com.google.gson.Gson
 import com.qwert2603.btablo.di.DIHolder
+import com.qwert2603.btablo.mac_settings.MacSettings
 import com.qwert2603.btablo.tablo.SendingState
 import com.qwert2603.btablo.tablo.TabloViewState
 import com.qwert2603.btablo.utils.ObservableField
@@ -19,6 +20,13 @@ import java.util.concurrent.TimeUnit
 class SettingsRepo(private val tabloInterface: TabloInterface) {
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(DIHolder.appContext)
+
+    val macAddress: MacSettings by PreferenceUtils.createPrefsObject(
+        prefs = prefs,
+        key = "",
+        gson = Gson(),
+        defaultValue = MacSettings("20:15:11:09:06:32", emptyList())
+    )
 
     val vs: ObservableField<TabloViewState> = PreferenceUtils.createPrefsObjectObservable(
         prefs = prefs,

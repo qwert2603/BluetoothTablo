@@ -6,7 +6,6 @@ import com.qwert2603.btablo.utils.convertToBytes
 import com.qwert2603.btablo.utils.digitAt
 import io.reactivex.Completable
 import io.reactivex.Single
-import kotlin.experimental.xor
 
 class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterface {
 
@@ -14,7 +13,7 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
         sendMessage(
             TabloConst.Address.ADDR0,
             TabloConst.Command.CMD_TIME,
-            byteArrayOf(
+            intArrayOf(
                 minutes.digitAt(1).convertToByte(),
                 minutes.digitAt(0).convertToByte(),
                 seconds.digitAt(1).convertToByte(),
@@ -27,7 +26,7 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
         sendMessage(
             TabloConst.Address.ADDR_24SEC,
             TabloConst.Command.CMD_24SEC,
-            byteArrayOf(
+            intArrayOf(
                 seconds.digitAt(1).convertToByte(),
                 seconds.digitAt(0).convertToByte(),
                 if (signal) TabloConst.SIGNAL_ON else TabloConst.SIGNAL_OFF
@@ -38,7 +37,7 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
         sendMessage(
             TabloConst.Address.ADDR_DIG,
             TabloConst.Command.CMD_SCORE,
-            byteArrayOf(
+            intArrayOf(
                 points1.digitAt(2).convertToByte(),
                 points1.digitAt(1).convertToByte(),
                 points1.digitAt(0).convertToByte(),
@@ -49,34 +48,34 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
         )
 
     override fun setPeriod(period: Int): Completable =
-        sendMessage(TabloConst.Address.ADDR_DIG, TabloConst.Command.CMD_PEROID, byteArrayOf(period.convertToByte()))
+        sendMessage(TabloConst.Address.ADDR_DIG, TabloConst.Command.CMD_PEROID, intArrayOf(period.convertToByte()))
 
     override fun setFouls(fouls1: Int, fouls2: Int): Completable =
         sendMessage(
             TabloConst.Address.ADDR_DIG,
             TabloConst.Command.CMD_FOUL,
-            byteArrayOf(fouls1.convertToByte(), fouls2.convertToByte())
+            intArrayOf(fouls1.convertToByte(), fouls2.convertToByte())
         )
 
     override fun setTimeouts(timeouts1: Int, timeouts2: Int): Completable =
         sendMessage(
             TabloConst.Address.ADDR_DIG,
             TabloConst.Command.CMD_TIMEOUT,
-            byteArrayOf(timeouts1.toByte(), timeouts2.toByte())
+            intArrayOf(timeouts1.convertToByte(), timeouts2.convertToByte())
         )
 
     override fun setHolding(isTeam2: Boolean): Completable =
         sendMessage(
             TabloConst.Address.ADDR_DIG,
             TabloConst.Command.CMD_HANDLING,
-            byteArrayOf(if (isTeam2) TabloConst.HOLDING_TEAM2 else TabloConst.HOLDING_TEAM1)
+            intArrayOf(if (isTeam2) TabloConst.HOLDING_TEAM2 else TabloConst.HOLDING_TEAM1)
         )
 
     override fun setSignal1(isOn: Boolean): Completable =
-        sendMessage(TabloConst.Address.ADDR_DIG, TabloConst.Command.CMD_SIREN1, byteArrayOf(TabloConst.SIGNAL_ON))
+        sendMessage(TabloConst.Address.ADDR_DIG, TabloConst.Command.CMD_SIREN1, intArrayOf(TabloConst.SIGNAL_ON))
 
     override fun setSignal2(isOn: Boolean): Completable =
-        sendMessage(TabloConst.Address.ADDR_DIG, TabloConst.Command.CMD_SIREN2, byteArrayOf(TabloConst.SIGNAL_ON))
+        sendMessage(TabloConst.Address.ADDR_DIG, TabloConst.Command.CMD_SIREN2, intArrayOf(TabloConst.SIGNAL_ON))
 
     override fun setTeam1Name(name: String): Completable =
         sendMessage(TabloConst.Address.ADDR_MATRIX, TabloConst.Command.CMD_MES1, name.padEnd(10).convertToBytes())
@@ -84,14 +83,15 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
     override fun setTeam2Name(name: String): Completable =
         sendMessage(TabloConst.Address.ADDR_MATRIX, TabloConst.Command.CMD_MES2, name.padEnd(10).convertToBytes())
 
-    private fun sendMessage(address: TabloConst.Address, command: TabloConst.Command, text: ByteArray): Completable =
+    private fun sendMessage(address: TabloConst.Address, command: TabloConst.Command, text: IntArray): Completable =
         Single
             .fromCallable {
                 if (TabloConst.TEST_MODE) {
-                    "_${address}_${command}_${String(text)}_".toByteArray()
+//                    "_${address}_${command}_${text}_".toByteArray()
+                    intArrayOf(42, 42)
                 } else {
-                    val message = byteArrayOf(address.value, command.value).plus(text)
-                    byteArrayOf(TabloConst.START_BYTE)
+                    val message = intArrayOf(address.value, command.value).plus(text)
+                    intArrayOf(TabloConst.START_BYTE)
                         .plus(message)
                         .plus(message.checkSum())
                         .plus(TabloConst.STOP_BYTE)
@@ -99,19 +99,20 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
             }
             .flatMapCompletable {
                 if (TabloConst.TEST_MODE) {
-                    Completable.fromAction { LogUtils.d("sendMessage ${String(it)}") }
+                    Completable.fromAction { LogUtils.d("sendMessage ${it}") }
                 } else {
                     bluetoothRepo.sendData(command, it)
                 }
             }
 
     companion object {
-        private fun ByteArray.checkSum(): Byte {
-            var result: Byte = 0
+        private fun IntArray.checkSum(): Int {
+            var result = 0
             this.forEach { byte ->
                 result = result xor byte
+                result %= 0xFF
             }
-            if (result == ':'.toByte() || result == 0x0D.toByte()) {
+            if (result == ':'.toInt() || result == 0x0D) {
                 result = 0x55
             }
             return result

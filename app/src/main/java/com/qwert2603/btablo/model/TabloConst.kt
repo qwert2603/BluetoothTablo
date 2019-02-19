@@ -6,14 +6,14 @@ object TabloConst {
 
     const val TEST_MODE = false
 
-    enum class Address(val value: Byte) {
+    enum class Address(val value: Int) {
         ADDR0(0.convertToByte()), //общий адрес
         ADDR_24SEC(1.convertToByte()),  //адрес табло 24 сек (у обоих один адрес)
         ADDR_DIG(2.convertToByte()), //адрес большого цифрового табло
         ADDR_MATRIX(3.convertToByte());   //адрес названия команд
     }
 
-    enum class Command(val value: Byte) {
+    enum class Command(val value: Int) {
         CMD_TIME(0.convertToByte()), //Время + точки = 5 Б
         CMD_24SEC(1.convertToByte()),//24 секунды + круг (дюралайт) = 3 Б
         CMD_SCORE(2.convertToByte()), //Счет = 6 Б
@@ -38,4 +38,6 @@ object TabloConst {
     val HOLDING_TEAM2 = 0x01.convertToByte()
 
     const val SECONDS_PER_MINUTE = 60
+
+    const val OFFSET_RUSSIAN = 848
 }

@@ -30,7 +30,8 @@ class BluetoothRepoImpl : BluetoothRepo {
         private const val REQUEST_ENABLE_BT = 2
         private const val ALCATEL_MAC = "3C:CB:7C:39:DA:95"
         private const val REDMI_MAC = "E0:62:67:66:E7:D6"
-        val BT_UUID: UUID = UUID.fromString("a3768bc3-601a-4f7b-ab72-798c5c2e44a8")
+        private const val HC_MAC = "20:15:11:09:06:32"
+        val BT_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
     }
 
     override val activityCallbacks = object : BluetoothRepo.ActivityCallbacks {
@@ -76,7 +77,7 @@ class BluetoothRepoImpl : BluetoothRepo {
             val deviceName = device.name
             val deviceMacAddress = device.address
             LogUtils.d("BT device found $deviceName $deviceMacAddress")
-            if (deviceMacAddress in listOf(ALCATEL_MAC, REDMI_MAC)) {
+            if (deviceMacAddress in listOf(ALCATEL_MAC, REDMI_MAC, HC_MAC)) {
                 LogUtils.d("TabloRepo btFoundReceiver bluetoothAdapter.cancelDiscovery() ${bluetoothAdapter.cancelDiscovery()}")
 
                 val socket = device.createInsecureRfcommSocketToServiceRecord(BT_UUID)
@@ -98,7 +99,7 @@ class BluetoothRepoImpl : BluetoothRepo {
         DIHolder.appContext.registerReceiver(btFoundReceiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
     }
 
-    override fun sendData(command: TabloConst.Command, bytes: ByteArray): Completable = Single
+    override fun sendData(command: TabloConst.Command, bytes: IntArray): Completable = Single
         .defer { cachingMessagesSender.get() }
         .flatMapCompletable { messagesSender ->
             Completable

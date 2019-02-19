@@ -1,14 +1,18 @@
 package com.qwert2603.btablo.tablo
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.Html
+import android.view.Menu
+import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import com.qwert2603.btablo.BuildConfig
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.di.DIHolder
+import com.qwert2603.btablo.mac_settings.MacSettingsActivity
 import com.qwert2603.btablo.model.BluetoothConnectionException
 import com.qwert2603.btablo.model.BluetoothDeniedException
 import com.qwert2603.btablo.model.TabloNotFoundException
@@ -34,6 +38,8 @@ class TabloActivity : BluetoothActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tablo)
+
+        setSupportActionBar(toolbar)
 
         setAboutText()
 
@@ -71,6 +77,20 @@ class TabloActivity : BluetoothActivity() {
             .disposeOnDestroy(this)
 
         setListeners(vsObservableField)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.tablo, menu)
+        super.onCreateOptionsMenu(menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.mac_settings) {
+            startActivity(Intent(this, MacSettingsActivity::class.java))
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun render(vs: TabloViewState) {
@@ -294,9 +314,12 @@ class TabloActivity : BluetoothActivity() {
     }
 
     private fun EditText.doOnTextChangeQQ(action: (String) -> Unit) {
-        this.doOnTextChange {
+        this.doOnTextChange { s ->
             if (!isRendering) {
-                action(it)
+                val filtered = s.filter {
+                    it in 'a'..'z' || it in 'A'..'Z' || it in 'а'..'я' || it in 'А'..'Я' || it in '0'..'9' || it == ' '
+                }
+                action(filtered)
             }
         }
     }

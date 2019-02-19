@@ -50,25 +50,26 @@ abstract class ObservableField<T> {
 
 object PreferenceUtils {
 
-    inline fun <reified T : Any> createPrefsObjectNullable(
+    inline fun <reified T : Any> createPrefsObject(
         prefs: SharedPreferences,
         key: String,
-        gson: Gson
-    ) = object : ReadWriteProperty<Any, T?> {
-        override fun getValue(thisRef: Any, property: KProperty<*>): T? =
+        gson: Gson,
+        defaultValue: T
+    ) = object : ReadWriteProperty<Any, T> {
+        override fun getValue(thisRef: Any, property: KProperty<*>): T =
             if (key in prefs) {
-                gson.fromJson(prefs.getString(key, ""), object : TypeToken<T>() {}.type)
+                try {
+                    gson.fromJson<T>(prefs.getString(key, ""), object : TypeToken<T>() {}.type)
+                } catch (t: Throwable) {
+                    defaultValue
+                }
             } else {
-                null
+                defaultValue
             }
 
-        override fun setValue(thisRef: Any, property: KProperty<*>, value: T?) {
+        override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
             prefs.edit {
-                if (value != null) {
-                    putString(key, gson.toJson(value))
-                } else {
-                    remove(key)
-                }
+                putString(key, gson.toJson(value))
             }
         }
     }
