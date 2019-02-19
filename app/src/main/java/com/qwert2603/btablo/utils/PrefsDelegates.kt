@@ -54,7 +54,8 @@ object PreferenceUtils {
         prefs: SharedPreferences,
         key: String,
         gson: Gson,
-        defaultValue: T
+        defaultValue: T,
+        commitPrefs: Boolean
     ) = object : ReadWriteProperty<Any, T> {
         override fun getValue(thisRef: Any, property: KProperty<*>): T =
             if (key in prefs) {
@@ -68,7 +69,7 @@ object PreferenceUtils {
             }
 
         override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
-            prefs.edit {
+            prefs.edit(commit = commitPrefs) {
                 putString(key, gson.toJson(value))
             }
         }

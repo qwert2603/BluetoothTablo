@@ -15,7 +15,7 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function3
 import kotlin.random.Random
 
-fun EditText.doOnTextChange(action: (String) -> Unit) {
+fun EditText.doOnTextChange(withInitial: Boolean = false, action: (String) -> Unit) {
     addTextChangedListener(object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
         }
@@ -27,6 +27,10 @@ fun EditText.doOnTextChange(action: (String) -> Unit) {
             action(s.toString())
         }
     })
+
+    if (withInitial) {
+        action(text.toString())
+    }
 }
 
 fun String.toIntOrZero(): Int = toIntOrNull() ?: 0
@@ -129,4 +133,16 @@ fun Disposable.disposeOnDestroy(lifecycleOwner: LifecycleOwner) {
             this@disposeOnDestroy.dispose()
         }
     })
+}
+
+fun String.isMacAddress(): Boolean {
+    if (this.length != TabloConst.MAC_ADDRESS_LENGTH) return false
+    for (i in 0 until TabloConst.MAC_ADDRESS_LENGTH) {
+        if (i % 3 == 2) {
+            if (this[i] != ':') return false
+        } else {
+            if (this[i] !in '0'..'9' && this[i] !in 'A'..'F') return false
+        }
+    }
+    return true
 }

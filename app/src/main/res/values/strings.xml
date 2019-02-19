@@ -48,6 +48,7 @@
     <string name="text_hold">Владение</string>
 
     <string name="text_settings">Настройки</string>
+    <string name="text_save">Сохранить</string>
     <string name="text_mac_address">MAC адрес</string>
     <string name="text_mac_address_incorrect">некорректный MAC адрес</string>
     <string name="text_recent_mac_addresses">Недавние</string>

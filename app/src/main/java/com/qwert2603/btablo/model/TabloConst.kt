@@ -40,4 +40,5 @@ object TabloConst {
     const val SECONDS_PER_MINUTE = 60
 
     const val OFFSET_RUSSIAN = 848
+    const val MAC_ADDRESS_LENGTH = 17
 }

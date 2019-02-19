@@ -21,11 +21,12 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(DIHolder.appContext)
 
-    val macAddress: MacSettings by PreferenceUtils.createPrefsObject(
+    var macSettings: MacSettings by PreferenceUtils.createPrefsObject(
         prefs = prefs,
-        key = "",
+        key = "macSettings",
         gson = Gson(),
-        defaultValue = MacSettings("20:15:11:09:06:32", emptyList())
+        defaultValue = MacSettings("3C:CB:7C:39:DA:95", emptyList()),
+        commitPrefs = true
     )
 
     val vs: ObservableField<TabloViewState> = PreferenceUtils.createPrefsObjectObservable(
