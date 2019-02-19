@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.text.Html
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
@@ -275,8 +276,21 @@ class TabloActivity : BluetoothActivity() {
         }
         attack_StartStop.stop_Button.setOnClickListener { DIHolder.settingsRepo.setAttackStarted(false) }
 
-        signal1_Button.setOnClickListener { DIHolder.settingsRepo.setSignal1(true) }
-        signal2_Button.setOnClickListener { DIHolder.settingsRepo.setSignal2(true) }
+//        signal1_Button.setOnClickListener { DIHolder.settingsRepo.setSignal1(true) }
+//        signal2_Button.setOnClickListener { DIHolder.settingsRepo.setSignal2(true) }
+
+        signal1_Button.setOnTouchListener { _, event ->
+            if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                DIHolder.settingsRepo.setSignal1(true)
+            }
+            false
+        }
+        signal2_Button.setOnTouchListener { _, event ->
+            if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                DIHolder.settingsRepo.setSignal2(true)
+            }
+            false
+        }
 
         sec24_Button.setOnClickListener {
             vsObservableField.updateField { vs -> vs.copy(attackSeconds = 24) }
