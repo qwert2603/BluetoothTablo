@@ -21,5 +21,5 @@
 -renamesourcefileattribute SourceFile
 
 
--keep class com.qwert2603.btablo.tablo.TabloViewState
--keep class com.qwert2603.btablo.mac_settings.MacSettings
+-keep class com.qwert2603.btablo.tablo.TabloViewState { *; }
+-keep class com.qwert2603.btablo.mac_settings.MacSettings { *; }
