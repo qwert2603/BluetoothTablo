@@ -91,7 +91,16 @@ class BluetoothRepoImpl : BluetoothRepo {
             getCurrentSocket()
                 .timeout(20, TimeUnit.SECONDS, sendScheduler, Single.error(TabloNotFoundException()))
         }
-        .map { MessagesSender(it) }
+        .flatMap { socket ->
+            Single
+                .fromCallable {
+                    LogUtils.d("TabloRepo cachingMessagesSender socket.connect()")
+                    socket.connect()
+                    MessagesSender(socket)
+                }
+                .subscribeOn(sendScheduler)
+                .timeout(15, TimeUnit.SECONDS, sendScheduler, Single.error(BluetoothConnectionException(TimeoutException())))
+        }
         .cacheIfSuccess("cachingMessagesSender")
 
     init {
@@ -118,12 +127,7 @@ class BluetoothRepoImpl : BluetoothRepo {
                     }
                     messagesSender.sendMessage(msg)
                 }
-                .timeout(
-                    10,
-                    TimeUnit.SECONDS,
-                    sendScheduler,
-                    Completable.error(BluetoothConnectionException(TimeoutException()))
-                )
+                .timeout(10, TimeUnit.SECONDS, sendScheduler, Completable.error(BluetoothConnectionException(TimeoutException())))
                 .doOnError {
                     LogUtils.d("TabloRepo sendData doOnError $it")
                     messagesSender.stop()

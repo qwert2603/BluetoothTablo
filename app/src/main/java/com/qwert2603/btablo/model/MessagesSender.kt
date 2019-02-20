@@ -56,10 +56,6 @@ class MessagesSender(private val socket: BluetoothSocket) {
     private fun doSendMessage(message: Message) {
         try {
             LogUtils.d("MessagesSender doSendMessage $message")
-            LogUtils.d("MessagesSender doSendMessage socket.isConnected = ${socket.isConnected} $socket")
-            if (!socket.isConnected) {
-                socket.connect()
-            }
 
             LogUtils.d("MessagesSender doSendMessage write ${message.bytes.joinToString {
                 java.lang.String.format("%02x", it)
