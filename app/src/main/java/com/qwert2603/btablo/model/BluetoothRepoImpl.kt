@@ -93,13 +93,33 @@ class BluetoothRepoImpl : BluetoothRepo {
         }
         .flatMap { socket ->
             Single
-                .fromCallable {
+                .create<MessagesSender> { emitter ->
+                    emitter.setCancellable {
+                        if (!socket.isConnected) {
+                            LogUtils.d("TabloRepo cachingMessagesSender cancellable called socket.close()")
+                            noThrow { socket.close() }
+                        }
+                    }
+
                     LogUtils.d("TabloRepo cachingMessagesSender socket.connect()")
-                    socket.connect()
-                    MessagesSender(socket)
+                    try {
+                        socket.connect()
+                        if (!emitter.isDisposed) {
+                            emitter.onSuccess(MessagesSender(socket))
+                        }
+                    } catch (t: Throwable) {
+                        if (!emitter.isDisposed) {
+                            emitter.onError(BluetoothConnectionException(t))
+                        }
+                    }
                 }
                 .subscribeOn(sendScheduler)
-                .timeout(15, TimeUnit.SECONDS, sendScheduler, Single.error(BluetoothConnectionException(TimeoutException())))
+                .timeout(
+                    15,
+                    TimeUnit.SECONDS,
+                    sendScheduler,
+                    Single.error(BluetoothConnectionException(TimeoutException()))
+                )
         }
         .cacheIfSuccess("cachingMessagesSender")
 
@@ -127,7 +147,12 @@ class BluetoothRepoImpl : BluetoothRepo {
                     }
                     messagesSender.sendMessage(msg)
                 }
-                .timeout(10, TimeUnit.SECONDS, sendScheduler, Completable.error(BluetoothConnectionException(TimeoutException())))
+                .timeout(
+                    10,
+                    TimeUnit.SECONDS,
+                    sendScheduler,
+                    Completable.error(BluetoothConnectionException(TimeoutException()))
+                )
                 .doOnError {
                     LogUtils.d("TabloRepo sendData doOnError $it")
                     messagesSender.stop()
@@ -158,12 +183,15 @@ class BluetoothRepoImpl : BluetoothRepo {
 
             LogUtils.d("TabloRepo enableBt activity $activity")
 
-            activity.startActivityForResult(
-                Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),
-                REQUEST_ENABLE_BT
-            )
-
-            if (!isBtEnabled.waitNext()) throw BluetoothDeniedException()
+            val enabled = isBtEnabled.waitNext {
+                activity.startActivityForResult(
+                    Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),
+                    REQUEST_ENABLE_BT
+                )
+            }
+            if (!enabled) {
+                throw BluetoothDeniedException()
+            }
         }
         .toSingleDefault(Unit)
         .doOnSubscribe { LogUtils.d("TabloRepo enableBt doOnSubscribe") }
@@ -182,11 +210,13 @@ class BluetoothRepoImpl : BluetoothRepo {
             }
 
             LogUtils.d("TabloRepo getCurrentSocket bluetoothAdapter.isDiscovering ${bluetoothAdapter.isDiscovering}")
-            if (!bluetoothAdapter.isDiscovering) {
-                LogUtils.d("TabloRepo getCurrentSocket bluetoothAdapter.startDiscovery() ${bluetoothAdapter.startDiscovery()}")
-            }
 
-            val socket = currentSocket.waitNext().t
+            val socket = currentSocket
+                .waitNext {
+                    if (!bluetoothAdapter.isDiscovering) {
+                        LogUtils.d("TabloRepo getCurrentSocket bluetoothAdapter.startDiscovery() ${bluetoothAdapter.startDiscovery()}")
+                    }
+                }.t
 
             LogUtils.d("TabloRepo getCurrentSocket socket $socket")
 

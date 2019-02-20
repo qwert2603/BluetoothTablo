@@ -13,8 +13,10 @@ class ValueToWait<T>(
         }
     }
 
-    fun waitNext(): T {
+    fun waitNext(initUpdateAction: () -> Unit): T {
         val prevVersion = version
+
+        initUpdateAction()
 
         while (prevVersion == version) Thread.yield()
 
