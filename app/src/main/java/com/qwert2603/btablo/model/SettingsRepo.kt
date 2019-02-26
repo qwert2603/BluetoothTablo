@@ -25,7 +25,7 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
         prefs = prefs,
         key = "macSettings",
         gson = Gson(),
-        defaultValue = MacSettings("3C:CB:7C:39:DA:95", emptyList()),
+        defaultValue = MacSettings(TabloConst.DEFAULT_MAC, emptyList()),
         commitPrefs = true
     )
 
@@ -66,9 +66,13 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
                 tabloInterface.setTimeouts(timeouts1, timeouts2).makeSend(TabloConst.Command.CMD_TIMEOUT)
             }
 
-            renderIfChangedEqual({ holdIsTeam2 }) { tabloInterface.setHolding(it).makeSend(TabloConst.Command.CMD_HANDLING) }
+            renderIfChangedEqual({ holdIsTeam2 }) {
+                tabloInterface.setHolding(it).makeSend(TabloConst.Command.CMD_HANDLING)
+            }
 
-            renderIfChangedEqual({ attackSeconds }) { tabloInterface.setTimeAttack(it, it == 0).makeSend(TabloConst.Command.CMD_24SEC) }
+            renderIfChangedEqual({ attackSeconds }) {
+                tabloInterface.setTimeAttack(it, it == 0).makeSend(TabloConst.Command.CMD_24SEC)
+            }
         }
     }
 
@@ -90,6 +94,15 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
 
     @SuppressLint("CheckResult")
     private fun makeInit() {
+
+        Observable
+            .interval(0, 5, TimeUnit.SECONDS)
+            .subscribe {
+                tabloInterface
+                    .setHolding(vs.field.holdIsTeam2)
+                    .makeSend(TabloConst.Command.CMD_HANDLING)
+            }
+
         _isStarted
             .switchMap {
                 if (it) {

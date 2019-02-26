@@ -106,7 +106,7 @@ fun Int.convertToByte(): Int =
     if (TabloConst.TEST_MODE) {
         (this.toByte() + '0'.toByte())
     } else {
-        this % 0xFF
+        this and 0xFF
     }
 
 fun String.convertToBytes(): IntArray = this

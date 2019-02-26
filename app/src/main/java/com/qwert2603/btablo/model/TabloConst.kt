@@ -6,6 +6,8 @@ object TabloConst {
 
     const val TEST_MODE = false
 
+    const val DEFAULT_MAC = "20:15:11:09:06:32"
+
     enum class Address(val value: Int) {
         ADDR0(0.convertToByte()), //общий адрес
         ADDR_24SEC(1.convertToByte()),  //адрес табло 24 сек (у обоих один адрес)

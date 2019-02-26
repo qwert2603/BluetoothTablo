@@ -63,6 +63,13 @@
                 android:layout_height="wrap_content"
                 android:text="@string/text_save" />
 
+            <Button
+                android:id="@+id/defaultMac_Button"
+                style="@style/ButtonStyle.Margin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="@string/format_default_mac" />
+
             <TextView
                 android:id="@+id/recent_TextView"
                 android:layout_width="match_parent"

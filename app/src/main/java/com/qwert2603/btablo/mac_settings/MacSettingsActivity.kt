@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.di.DIHolder
+import com.qwert2603.btablo.model.TabloConst
 import com.qwert2603.btablo.tablo.TabloActivity
 import com.qwert2603.btablo.utils.doOnTextChange
 import com.qwert2603.btablo.utils.isMacAddress
@@ -56,6 +57,13 @@ class MacSettingsActivity : AppCompatActivity() {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
             System.exit(0)
+        }
+
+        defaultMac_Button.text = getString(R.string.format_default_mac, TabloConst.DEFAULT_MAC)
+
+        defaultMac_Button.setOnClickListener {
+            mac_EditText.setText(TabloConst.DEFAULT_MAC)
+            mac_EditText.setSelection(TabloConst.DEFAULT_MAC.length)
         }
 
         recent_TextView.isVisible = macSettings.recent.isNotEmpty()
