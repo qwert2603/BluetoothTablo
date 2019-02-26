@@ -95,14 +95,6 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
     @SuppressLint("CheckResult")
     private fun makeInit() {
 
-        Observable
-            .interval(0, 5, TimeUnit.SECONDS)
-            .subscribe {
-                tabloInterface
-                    .setHolding(vs.field.holdIsTeam2)
-                    .makeSend(TabloConst.Command.CMD_HANDLING)
-            }
-
         _isStarted
             .switchMap {
                 if (it) {
@@ -166,6 +158,14 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
                     .doFinally { resetSendingMessages.onNext(Unit) }
             }
             .subscribe { _sendingState.onNext(it) }
+
+        Observable
+            .interval(0, 5, TimeUnit.SECONDS)
+            .subscribe {
+                tabloInterface
+                    .setHolding(vs.field.holdIsTeam2)
+                    .makeSend(TabloConst.Command.CMD_HANDLING)
+            }
     }
 
     fun sendAll() {
