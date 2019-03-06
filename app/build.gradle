@@ -18,7 +18,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 4
-        versionName "0.4"
+        versionName "0.3.1"
 
         resConfigs "ru"
 

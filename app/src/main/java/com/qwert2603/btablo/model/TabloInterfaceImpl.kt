@@ -110,8 +110,8 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
             var result = 0
             this.forEach { byte ->
                 result = result xor byte
-                result %= 0xFF
             }
+            result = result and 0xFF
             if (result == ':'.toInt() || result == 0x0D) {
                 result = 0x55
             }
