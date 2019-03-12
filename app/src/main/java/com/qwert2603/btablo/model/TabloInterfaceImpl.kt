@@ -108,9 +108,11 @@ class TabloInterfaceImpl(private val bluetoothRepo: BluetoothRepo) : TabloInterf
     companion object {
         private fun IntArray.checkSum(): Int {
             var result = 0
-            this.forEach { byte ->
-                result = result xor byte
-            }
+            this
+                .dropLast(1)
+                .forEach { byte ->
+                    result = result xor byte
+                }
             result = result and 0xFF
             if (result == ':'.toInt() || result == 0x0D) {
                 result = 0x55

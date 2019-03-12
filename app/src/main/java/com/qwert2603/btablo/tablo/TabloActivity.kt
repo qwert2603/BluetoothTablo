@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import com.qwert2603.btablo.BuildConfig
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.di.DIHolder
@@ -39,6 +40,8 @@ class TabloActivity : BluetoothActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tablo)
+
+        Toast.makeText(this, "контрольная сумма для последнего байта посылки НЕ считается", Toast.LENGTH_LONG).show()
 
         setSupportActionBar(toolbar)
 
