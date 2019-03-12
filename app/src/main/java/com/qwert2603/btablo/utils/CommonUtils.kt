@@ -135,14 +135,6 @@ fun Disposable.disposeOnDestroy(lifecycleOwner: LifecycleOwner) {
     })
 }
 
-fun String.isMacAddress(): Boolean {
-    if (this.length != TabloConst.MAC_ADDRESS_LENGTH) return false
-    for (i in 0 until TabloConst.MAC_ADDRESS_LENGTH) {
-        if (i % 3 == 2) {
-            if (this[i] != ':') return false
-        } else {
-            if (this[i] !in '0'..'9' && this[i] !in 'A'..'F') return false
-        }
-    }
-    return true
-}
+private val MAC_REGEX = Regex("^([0-9A-F]{2}:){5}[0-9A-F]{2}\$")
+
+fun String.isMacAddress() = MAC_REGEX.matches(this)

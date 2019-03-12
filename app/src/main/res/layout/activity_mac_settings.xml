@@ -49,9 +49,11 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/text_mac_address"
                     android:imeOptions="flagNoFullscreen"
+                    android:inputType="textCapCharacters"
                     android:maxLength="17"
                     android:selectAllOnFocus="true"
                     android:singleLine="true"
+                    android:textAllCaps="true"
                     tools:text="20:15:11:09:06:32" />
 
             </com.google.android.material.textfield.TextInputLayout>
