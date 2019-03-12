@@ -41,6 +41,7 @@ class TabloActivity : BluetoothActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tablo)
 
+        // todo: remove
         Toast.makeText(this, "контрольная сумма для последнего байта посылки НЕ считается", Toast.LENGTH_LONG).show()
 
         setSupportActionBar(toolbar)
