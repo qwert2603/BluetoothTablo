@@ -37,12 +37,12 @@
             android:animateLayoutChanges="true"
             android:orientation="vertical">
 
-            <Button
-                android:id="@+id/reset_Button"
-                style="@style/ButtonStyle.Margin"
+            <LinearLayout
+                android:id="@+id/resetButtons_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/button_reset" />
+                android:layout_marginBottom="12dp"
+                android:orientation="vertical" />
 
             <include layout="@layout/include_teams" />
 

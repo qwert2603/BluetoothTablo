@@ -39,7 +39,5 @@ object TabloConst {
     val HOLDING_TEAM1 = 0x00.convertToByte()
     val HOLDING_TEAM2 = 0x01.convertToByte()
 
-    const val SECONDS_PER_MINUTE = 60
-
     const val OFFSET_RUSSIAN = 848
 }

@@ -5,6 +5,7 @@ import android.preference.PreferenceManager
 import com.google.gson.Gson
 import com.qwert2603.btablo.di.DIHolder
 import com.qwert2603.btablo.mac_settings.MacSettings
+import com.qwert2603.btablo.tablo.Game
 import com.qwert2603.btablo.tablo.SendingState
 import com.qwert2603.btablo.tablo.TabloViewState
 import com.qwert2603.btablo.utils.ObservableField
@@ -33,7 +34,7 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
         prefs = prefs,
         key = "vs",
         gson = Gson(),
-        defaultValue = TabloViewState.DEFAULT
+        defaultValue = TabloViewState.createDefault(Game.BASKETBALL)
     )
 
     private val stateHolder = object : StateHolderImpl<TabloViewState>(vs.field) {
@@ -106,13 +107,13 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
             .subscribe { i ->
                 // i == 0 -- when initial (0 seconds passed).
                 val vs = if (i > 0) {
-                    vs.updateField { it.decSecond() }
+                    vs.updateField { it.stepSecond() }
                 } else {
                     vs.field
                 }
-                if (vs.totalSeconds() == 0) {
+                if (vs.isTimeOver()) {
                     setStarted(false)
-                    if (i > 0) {
+                    if (i > 0 && vs.game.signalOnTimeIsOver) {
                         tabloInterface.setSignal1(true).makeSend(TabloConst.Command.CMD_SIREN1)
                     }
                 }

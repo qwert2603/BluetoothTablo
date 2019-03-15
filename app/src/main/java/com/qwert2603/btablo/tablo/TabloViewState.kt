@@ -1,8 +1,7 @@
 package com.qwert2603.btablo.tablo
 
-import com.qwert2603.btablo.model.TabloConst
-
 data class TabloViewState(
+    val game: Game,
     val team1: String,
     val team2: String,
     val minutes: Int,
@@ -29,6 +28,8 @@ data class TabloViewState(
     fun isFouls2MinusEnabled() = fouls2 > MIN_FOULS
 
     companion object {
+        const val SECONDS_PER_MINUTE = 60
+
         const val MAX_SECONDS = 59
         const val MAX_MINUTES = 99
 
@@ -44,11 +45,12 @@ data class TabloViewState(
         const val MIN_TIMEOUTS = 0
         const val MAX_TIMEOUTS = 3
 
-        val DEFAULT = TabloViewState(
+        fun createDefault(game: Game) = TabloViewState(
+            game = game,
             team1 = "Команда1",
             team2 = "Команда2",
-            minutes = 10,
-            seconds = 0,
+            minutes = game.resetSeconds / SECONDS_PER_MINUTE,
+            seconds = game.resetSeconds % SECONDS_PER_MINUTE,
             points1 = 0,
             points2 = 0,
             period = 1,
@@ -61,17 +63,24 @@ data class TabloViewState(
         )
     }
 
-    fun totalSeconds() = minutes * TabloConst.SECONDS_PER_MINUTE + seconds
+    private fun totalSeconds() = minutes * SECONDS_PER_MINUTE + seconds
 
-    fun decSecond(): TabloViewState {
+    fun stepSecond(): TabloViewState {
         val updatedTotalSeconds = totalSeconds()
-            .minus(1)
-            .coerceAtLeast(0)
+            .let {
+                when {
+                    it == game.timeIsOverSeconds -> it
+                    game.timeForward -> it + 1
+                    else -> it - 1
+                }
+            }
         return copy(
-            minutes = updatedTotalSeconds / TabloConst.SECONDS_PER_MINUTE,
-            seconds = updatedTotalSeconds % TabloConst.SECONDS_PER_MINUTE
+            minutes = updatedTotalSeconds / SECONDS_PER_MINUTE,
+            seconds = updatedTotalSeconds % SECONDS_PER_MINUTE
         )
     }
+
+    fun isTimeOver() = totalSeconds() == game.timeIsOverSeconds
 
     fun decAttackSecond() = copy(attackSeconds = attackSeconds.minus(1).coerceAtLeast(0))
 }

@@ -54,4 +54,7 @@
     <string name="text_recent_mac_addresses">Недавние</string>
 
     <string name="format_default_mac" formatted="true">MAC адрес по умолчанию\n%s</string>
+    <string name="game_football" formatted="true">Футбол</string>
+    <string name="game_volleyball" formatted="true">Волейбол</string>
+    <string name="game_basketball" formatted="true">Баскетбол</string>
 </resources>

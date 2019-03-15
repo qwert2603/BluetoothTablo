@@ -1,5 +1,6 @@
 package com.qwert2603.btablo.tablo
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -100,6 +101,8 @@ class TabloActivity : BluetoothActivity() {
 
         LogUtils.d { "TabloActivity render $vs" }
 
+        toolbar.title = "${getString(R.string.app_name)} / ${getString(vs.game.nameRes)}"
+
         team1_EditText.setTextQQ(vs.team1)
         team2_EditText.setTextQQ(vs.team2)
 
@@ -173,11 +176,19 @@ class TabloActivity : BluetoothActivity() {
     }
 
     private fun setListeners(vsObservableField: ObservableField<TabloViewState>) {
-        reset_Button.setOnClickListener {
-            DIHolder.settingsRepo.setStarted(false)
-            DIHolder.settingsRepo.setAttackStarted(false)
-            DIHolder.settingsRepo.prepareForSendAll()
-            vsObservableField.updateField { TabloViewState.DEFAULT }
+        Game.values().forEach { game ->
+            val button = layoutInflater.inflate(R.layout.include_reset_button, resetButtons_container, false) as Button
+            resetButtons_container.addView(button)
+
+            @SuppressLint("SetTextI18n")
+            button.text = "${getString(R.string.button_reset)} / ${getString(game.nameRes)}"
+
+            button.setOnClickListener {
+                DIHolder.settingsRepo.setStarted(false)
+                DIHolder.settingsRepo.setAttackStarted(false)
+                DIHolder.settingsRepo.prepareForSendAll()
+                vsObservableField.updateField { TabloViewState.createDefault(game) }
+            }
         }
 
         team1_EditText.doOnTextChangeQQ { vsObservableField.updateField { vs -> vs.copy(team1 = it) } }
@@ -275,9 +286,6 @@ class TabloActivity : BluetoothActivity() {
             hideKeyboard()
         }
         attack_StartStop.stop_Button.setOnClickListener { DIHolder.settingsRepo.setAttackStarted(false) }
-
-//        signal1_Button.setOnClickListener { DIHolder.settingsRepo.setSignal1(true) }
-//        signal2_Button.setOnClickListener { DIHolder.settingsRepo.setSignal2(true) }
 
         signal1_Button.setOnTouchListener { _, event ->
             if (event.actionMasked == MotionEvent.ACTION_DOWN) {
