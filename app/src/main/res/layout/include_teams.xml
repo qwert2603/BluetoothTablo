@@ -11,7 +11,7 @@
         android:orientation="horizontal">
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            style="@style/TextInputLayoutStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1">
@@ -27,12 +27,13 @@
                 android:maxLength="@integer/team_max_length"
                 android:maxLines="1"
                 android:selectAllOnFocus="true"
+                android:textAlignment="textStart"
                 tools:text="@string/hint_team1" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            style="@style/TextInputLayoutStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
@@ -49,6 +50,7 @@
                 android:maxLength="@integer/team_max_length"
                 android:maxLines="1"
                 android:selectAllOnFocus="true"
+                android:textAlignment="textStart"
                 tools:text="@string/hint_team2" />
 
         </com.google.android.material.textfield.TextInputLayout>

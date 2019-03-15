@@ -11,7 +11,7 @@
     <string name="hint_fouls">Фолы</string>
     <string name="hint_attack">Время атаки</string>
 
-    <string name="button_send_all">Отправить всё</string>
+    <string name="button_send_all">Восстановить табло</string>
     <string name="button_reset">Сброс</string>
     <string name="button_start">Старт</string>
     <string name="button_stop">Стоп</string>
@@ -21,8 +21,8 @@
     <string name="button_clear">Очистить</string>
     <string name="button_server">Сервер</string>
     <string name="button_client">Клиент</string>
-    <string name="button_24sec">24с</string>
-    <string name="button_14sec">14с</string>
+    <string name="button_24sec">24 сек</string>
+    <string name="button_14sec">14 сек</string>
 
     <string name="button_plus">+</string>
     <string name="button_minus">-</string>
