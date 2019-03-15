@@ -33,7 +33,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/text_hold" />
+            android:text="@string/text_hold"
+            android:textSize="18sp" />
 
         <com.qwert2603.btablo.utils.HoldView
             android:id="@+id/holdView"
