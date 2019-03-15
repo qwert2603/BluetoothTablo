@@ -104,6 +104,7 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
                 }
             }
             .subscribe { i ->
+                // i == 0 -- when initial (0 seconds passed).
                 val vs = if (i > 0) {
                     vs.updateField { it.decSecond() }
                 } else {
@@ -111,6 +112,9 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
                 }
                 if (vs.totalSeconds() == 0) {
                     setStarted(false)
+                    if (i > 0) {
+                        tabloInterface.setSignal1(true).makeSend(TabloConst.Command.CMD_SIREN1)
+                    }
                 }
             }
 
