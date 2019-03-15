@@ -17,18 +17,18 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/signal1_Button"
-                style="@style/ButtonStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/button_signal1" />
-
-            <Button
                 android:id="@+id/signal2_Button"
                 style="@style/ButtonStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/button_signal2" />
+
+            <Button
+                android:id="@+id/signal1_Button"
+                style="@style/ButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_signal1" />
 
         </LinearLayout>
 
