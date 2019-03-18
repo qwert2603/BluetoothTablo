@@ -33,6 +33,8 @@ data class TabloViewState(
         const val MAX_SECONDS = 59
         const val MAX_MINUTES = 99
 
+        const val MAX_TOTAL_SECONDS = MAX_MINUTES * SECONDS_PER_MINUTE + MAX_SECONDS
+
         const val MIN_POINTS = 0
         const val MAX_POINTS = 999
 
@@ -80,7 +82,7 @@ data class TabloViewState(
         )
     }
 
-    fun isTimeOver() = totalSeconds() == game.timeIsOverSeconds
+    fun isTimeOver() = totalSeconds() in listOf(game.timeIsOverSeconds, game.stepsEndTotalSeconds)
 
     fun decAttackSecond() = copy(attackSeconds = attackSeconds.minus(1).coerceAtLeast(0))
 }

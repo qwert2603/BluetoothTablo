@@ -53,6 +53,7 @@
                     android:maxLength="17"
                     android:selectAllOnFocus="true"
                     android:singleLine="true"
+                    android:textAlignment="textStart"
                     android:textAllCaps="true"
                     tools:text="20:15:11:09:06:32" />
 

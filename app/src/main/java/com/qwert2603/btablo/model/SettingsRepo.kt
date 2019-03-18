@@ -104,16 +104,16 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
                     Observable.never()
                 }
             }
-            .subscribe { i ->
-                // i == 0 -- when initial (0 seconds passed).
-                val vs = if (i > 0) {
-                    vs.updateField { it.stepSecond() }
-                } else {
+            .map { it == 0L }
+            .subscribe { justStarted ->
+                val vs = if (justStarted) {
                     vs.field
+                } else {
+                    vs.updateField { it.stepSecond() }
                 }
                 if (vs.isTimeOver()) {
                     setStarted(false)
-                    if (i > 0 && vs.game.signalOnTimeIsOver) {
+                    if (!justStarted && vs.game.signalOnTimeIsOver) {
                         tabloInterface.setSignal1(true).makeSend(TabloConst.Command.CMD_SIREN1)
                     }
                 }
@@ -127,16 +127,16 @@ class SettingsRepo(private val tabloInterface: TabloInterface) {
                     Observable.never()
                 }
             }
-            .subscribe { i ->
-                // i == 0 -- when initial (0 seconds passed).
-                val vs = if (i > 0) {
-                    vs.updateField { it.decAttackSecond() }
-                } else {
+            .map { it == 0L }
+            .subscribe { justStarted ->
+                val vs = if (justStarted) {
                     vs.field
+                } else {
+                    vs.updateField { it.decAttackSecond() }
                 }
                 if (vs.attackSeconds == 0) {
                     setAttackStarted(false)
-                    if (i > 0) {
+                    if (!justStarted) {
                         tabloInterface.setSignal1(true).makeSend(TabloConst.Command.CMD_SIREN1)
                     }
                 }
