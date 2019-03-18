@@ -52,7 +52,15 @@
 
             <include layout="@layout/include_hold" />
 
-            <include layout="@layout/include_attack" />
+            <LinearLayout
+                android:id="@+id/attack_Panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <include layout="@layout/include_attack" />
+
+            </LinearLayout>
 
             <Button
                 android:id="@+id/sendAll_Button"

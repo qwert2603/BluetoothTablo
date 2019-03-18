@@ -46,6 +46,11 @@
     <string name="sending_state_error">Ошибка!</string>
 
     <string name="text_hold">Владение</string>
+    <string name="text_inning">Подача</string>
+    <string name="text_points_by_games">Счёт по партиям</string>
+    <string name="text_match">Партия</string>
+    <string name="text_quarter">Четверть</string>
+    <string name="text_half">Тайм</string>
 
     <string name="text_settings">Настройки</string>
     <string name="text_save">Сохранить</string>

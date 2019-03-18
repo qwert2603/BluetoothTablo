@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import androidx.core.view.isVisible
 import com.qwert2603.btablo.BuildConfig
 import com.qwert2603.btablo.R
 import com.qwert2603.btablo.di.DIHolder
@@ -46,6 +47,13 @@ class TabloActivity : BluetoothActivity() {
         setAboutText()
 
         val vsObservableField: ObservableField<TabloViewState> = DIHolder.settingsRepo.vs
+
+        vsObservableField.changes
+            .map { it.game }
+            .distinctUntilChanged()
+            .observeOn(DIHolder.uiScheduler)
+            .subscribe { renderGame(it) }
+            .disposeOnDestroy(this)
 
         vsObservableField.changes
             .observeOn(DIHolder.uiScheduler)
@@ -93,6 +101,45 @@ class TabloActivity : BluetoothActivity() {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun renderGame(game: Game) {
+        LogUtils.d { "TabloActivity renderGame $game" }
+
+        attack_Panel.isVisible = game == Game.BASKETBALL
+        val timeoutsVisible = game in listOf(Game.VOLLEYBALL, Game.BASKETBALL)
+        listOf(timeouts1, timeouts2).forEach { it.isVisible = timeoutsVisible }
+        when (game) {
+            Game.FOOTBALL -> {
+                fouls2.setPaddingRelative(resources.getDimensionPixelSize(R.dimen.edit_text_margin_start), 0, 0, 0)
+                hold_LinearLayout.isVisible = false
+            }
+            Game.VOLLEYBALL -> {
+                fouls2.setPaddingRelative(0, 0, 0, 0)
+                hold_LinearLayout.isVisible = true
+                hold_TextView.setText(R.string.text_inning)
+            }
+            Game.BASKETBALL -> {
+                fouls2.setPaddingRelative(0, 0, 0, 0)
+                hold_LinearLayout.isVisible = true
+                hold_TextView.setText(R.string.text_hold)
+            }
+        }.also { }
+        period_TextInputLayout.hint = getString(
+            when (game) {
+                Game.FOOTBALL -> R.string.text_half
+                Game.VOLLEYBALL -> R.string.text_match
+                Game.BASKETBALL -> R.string.text_quarter
+            }
+        )
+        val foulsString = getString(
+            when (game) {
+                Game.FOOTBALL -> R.string.hint_fouls
+                Game.VOLLEYBALL -> R.string.text_points_by_games
+                Game.BASKETBALL -> R.string.hint_fouls
+            }
+        )
+        listOf(fouls1.fouls_TextInputLayout, fouls2.fouls_TextInputLayout).forEach { it.hint = foulsString }
     }
 
     private fun render(vs: TabloViewState) {
@@ -188,6 +235,7 @@ class TabloActivity : BluetoothActivity() {
                 DIHolder.settingsRepo.setAttackStarted(false)
                 DIHolder.settingsRepo.prepareForSendAll()
                 vsObservableField.updateField { TabloViewState.createDefault(game) }
+                hideKeyboard()
             }
         }
 
