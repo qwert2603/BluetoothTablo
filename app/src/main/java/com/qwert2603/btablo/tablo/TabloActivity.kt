@@ -106,6 +106,12 @@ class TabloActivity : BluetoothActivity() {
     private fun renderGame(game: Game) {
         LogUtils.d { "TabloActivity renderGame $game" }
 
+        background_ImageView.setImageResource(when(game){
+            Game.FOOTBALL -> R.drawable.background_football
+            Game.VOLLEYBALL -> R.drawable.background_volleyball
+            Game.BASKETBALL -> R.drawable.background_basketball
+        })
+
         attack_Panel.isVisible = game == Game.BASKETBALL
         val timeoutsVisible = game in listOf(Game.VOLLEYBALL, Game.BASKETBALL)
         listOf(timeouts1, timeouts2).forEach { it.isVisible = timeoutsVisible }

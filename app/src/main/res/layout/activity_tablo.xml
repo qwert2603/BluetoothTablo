@@ -9,6 +9,16 @@
     android:focusableInTouchMode="true"
     tools:context=".tablo.TabloActivity">
 
+    <ImageView
+        android:id="@+id/background_ImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:tint="#D8FFFFFF"
+        android:tintMode="src_over"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/background_football" />
+
     <com.google.android.material.appbar.AppBarLayout
         style="@style/ActionBarStyle"
         android:layout_width="match_parent"
