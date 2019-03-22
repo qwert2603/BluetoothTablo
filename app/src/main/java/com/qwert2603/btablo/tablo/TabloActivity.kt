@@ -1,6 +1,5 @@
 package com.qwert2603.btablo.tablo
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -106,11 +105,13 @@ class TabloActivity : BluetoothActivity() {
     private fun renderGame(game: Game) {
         LogUtils.d { "TabloActivity renderGame $game" }
 
-        background_ImageView.setImageResource(when(game){
-            Game.FOOTBALL -> R.drawable.background_football
-            Game.VOLLEYBALL -> R.drawable.background_volleyball
-            Game.BASKETBALL -> R.drawable.background_basketball
-        })
+        background_ImageView.setImageResource(
+            when (game) {
+                Game.FOOTBALL -> R.drawable.background_football
+                Game.VOLLEYBALL -> R.drawable.background_volleyball
+                Game.BASKETBALL -> R.drawable.background_basketball
+            }
+        )
 
         attack_Panel.isVisible = game == Game.BASKETBALL
         val timeoutsVisible = game in listOf(Game.VOLLEYBALL, Game.BASKETBALL)
@@ -232,10 +233,7 @@ class TabloActivity : BluetoothActivity() {
         Game.values().forEach { game ->
             val button = layoutInflater.inflate(R.layout.include_reset_button, resetButtons_container, false) as Button
             resetButtons_container.addView(button)
-
-            @SuppressLint("SetTextI18n")
-            button.text = "${getString(R.string.button_reset)} / ${getString(game.nameRes)}"
-
+            button.setText(game.nameRes)
             button.setOnClickListener {
                 DIHolder.settingsRepo.setStarted(false)
                 DIHolder.settingsRepo.setAttackStarted(false)
