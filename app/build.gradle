@@ -17,8 +17,8 @@ android {
         applicationId "com.qwert2603.btablo"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 6
-        versionName "0.4.1"
+        versionCode 7
+        versionName "0.4.2"
 
         resConfigs "ru"
 
