@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:tint="#C8FFFFFF"
+        android:tint="#C0FFFFFF"
         android:tintMode="src_over"
         tools:ignore="ContentDescription"
         tools:src="@drawable/background_football" />
